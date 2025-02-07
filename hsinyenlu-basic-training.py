@@ -96,3 +96,9 @@ print(sys.executable)
 
 ## 如何讀取requirements.txt
 ## 在terminal中讀取並安裝 : pip install -r requirements.txt
+
+#%%
+## python基本練習
+## 如何執行一隻python程式
+## 編輯好程式後，需要一個interpreter來解讀程式給電腦看，類似一種翻譯器，使電腦先讀懂我們的code再做執行
+## 在pycharm介面，可以點選右下角，選擇add new interpreter --> add local interpreter --> 可以選擇創造新的(generate new)、或是選擇已經存在的(select existing)
