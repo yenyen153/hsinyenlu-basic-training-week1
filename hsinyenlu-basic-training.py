@@ -71,3 +71,17 @@ print(f"Debug Mode: {debug_mode}")
 ## 2. 建立.env檔案，輸入api key、debug模式等資訊
 ## 3. 另外引用from dotenv import load_dotenv
 ## 4. 利用load_dotenv()讀取.env檔中的資訊 (如果.env在其他資料夾中，可以去指定讀檔路徑)
+
+#%%
+# 2. python程式開發
+
+#%%
+## 虛擬環境操作 - 如何確認當前虛擬環境
+## 查看目的 : 確保套件安裝在正確的環境中，並確保開發者之間環境一致
+
+#方法1. 程式執行
+import sys
+print(sys.executable)
+
+#方法2. terminal執行
+## python --version
