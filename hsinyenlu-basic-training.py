@@ -213,3 +213,17 @@ employee(30,'Jamie',5)
 # >>> 員工姓名:30；員工年齡:Jamie；員工年資:5年
 
 ## 總結，當程式強調位置概念*args時，例如語料處理，詞的位置就很重要，若隨意對調會使語意表達不一樣
+
+#%%
+## Function - Keyword Arguments(**kwargs)
+## Keyword Arguments強調關鍵字，與前面*args強調位置不同，keyword arguments只要輸入符合的關鍵字，位置並不影響表達
+def employee2(**kwargs):
+    for key, value in kwargs.items():
+        print(f"{key}:{value}")
+
+employee2(員工年齡 = 30,  員工姓名 = 'Jamie', 員工年資 = 20)
+# >>> 員工年齡:30
+# >>> 員工姓名:Jamie
+# >>> 員工年資:20
+
+## 總結，使用**kwargs強調的不會是位置，而是key所對應到的value
