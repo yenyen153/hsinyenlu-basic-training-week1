@@ -199,3 +199,17 @@ print('天氣的詞性:', text_pos_dict['天氣']) # 用dict key,value概念去�
 text_num_dict = {word:text_token.count(word) for word in text_token}
 print(text_num_dict)
 # >>>{'今天': 1, '的': 2, '天氣': 1, '很': 2, '好': 2, '，': 4, '我': 1, '心情': 1, '也': 1, '下班': 1, '後': 1, '想': 1, '去': 1, '咖啡': 1, '廳': 1, '、': 1, '書局': 1, '電影院': 1, '但': 1, '時間': 1, '不夠': 1, '只好': 1, '回家': 1}
+
+#%%
+## Function - Positional Arguments(*args)
+## Positional Arguments強調位置，因此args的位置會影響執行效果，以下面為例，位置調換會導致訊息錯誤
+
+def employee(*args):
+    print(f"員工姓名:{args[0]}；員工年齡:{args[1]}；員工年資:{args[2]}年")
+
+employee('Jamie', 30, 5)
+# >>> 員工姓名:Jamie；員工年齡:30；員工年資:5年
+employee(30,'Jamie',5)
+# >>> 員工姓名:30；員工年齡:Jamie；員工年資:5年
+
+## 總結，當程式強調位置概念*args時，例如語料處理，詞的位置就很重要，若隨意對調會使語意表達不一樣
