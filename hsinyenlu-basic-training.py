@@ -227,3 +227,90 @@ employee2(員工年齡 = 30,  員工姓名 = 'Jamie', 員工年資 = 20)
 # >>> 員工年資:20
 
 ## 總結，使用**kwargs強調的不會是位置，而是key所對應到的value
+
+#%%
+## Package及Module - 如何引用及使用
+
+## Module :
+## Module可以想像是我們自己寫的function，可以參考下面的hello.py，say_hello()就是我們寫的module
+## 寫好的module可以被引用在其他檔案中，例如下面goodbye.py引用hello()的方法
+## 如果檔案裡面很多module 可以使用 import say_hello，需要用到特定module時再 : say_hello.hello()
+## 總結 :
+## 當我們需要一直使用同一個function時，可以透過這個方式減少重複編寫的時間
+## 用from a import b --> 從a檔案import特定module 優點 : 不需要一次呼叫a檔案中所有module、缺點 : 只能使用單一module
+## 用import a 再使用a.b() --> 優點 : 當專案需要用到很多module時，不需要一個個呼叫、缺點 : 要打很多字
+
+## Package :
+## 可以想像是一個專門給python module的資料夾
+## 但一定要有一個__init__.py讓電腦辨識他是python package
+## package裡面可以有很多.py
+## 引用方法可以直接參考module引用方法
+
+
+#%%
+## if __name__ == '__main__'的概念與應用
+
+## if __name__ == '__main__'能用來切割程式內自定義function與主程式
+## 之所以能切割，首先要了解__name__代表甚麼
+## __name__ 在py檔執行時，會被自動設為 '__main__'，以下面為例，如果執行這分檔案，他會將__name__設為__main__
+
+print(__name__)
+# >>> __main__
+
+#%%
+type('你好啊')
+
+#%%
+## 所以當if __name__ == '__main__'表示，當這個假設被觸發時，代表這份檔案正在被執行，也因此下面的主程式才會跟著執行
+## 之所以要切割自定義function與主程式，以hello1.py、hello2.py、goodbye.py舉例
+
+## 假設以下程式在hello1.py中
+def say_hello():
+    print("hello world")
+    print(__name__)
+
+print('你好啊')
+say_hello()
+
+#>>> 你好啊
+#>>> hello world
+#>>> __main__
+
+#%%
+## 假設以下程式在hello2.py中
+def say_hello():
+    print("hello world")
+    print(__name__)
+
+if __name__ == '__main__':
+    print('你好啊')
+    say_hello()
+
+#>>> 你好啊
+#>>> hello world
+#>>> __main__
+
+#%%
+## 假設以下程式在goodbye.py中
+# hello1.py沒使用if __name__ == '__main__'分割自定義function與主程式情況下
+# hello1.py中的主程式也會被goodbye.py引用
+from hello import say_hello
+say_hello()
+print('掰掰')
+# >>> 你好啊
+# >>> hello world
+# >>> hello
+# >>> hello world
+# >>> hello
+# >>> 掰掰
+
+#%%
+# hello2.py有分割自定義function與主程式情況下
+# 僅會引用hello2.py中的自定義function，hello2.py本身並沒有被觸發
+# ## 因此if __name__ == '__main__':的條件不成立，接下來的程式不會被執行
+from hello import say_hello
+say_hello()
+print('掰掰')
+# >>> hello world
+# >>> hello
+# >>> 掰掰
