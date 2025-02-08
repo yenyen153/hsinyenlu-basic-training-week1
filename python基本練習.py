@@ -55,3 +55,28 @@ print(text_freq)
 sent1 = "the cat sit on the table".split()  # >>>['the', 'cat', 'sit', 'on', 'the', 'table']
 sent2 = "the tabel sit on the cat".split()  # >>>['the', 'table', 'sit', 'on', 'the', 'cat']
 ## 上述sent1,sent2的cat與table調換後，是完全不同意思
+
+# %%
+## 資料結構 - tuple
+## tuple內容是不能被更改的，因此當資料是不能被更動時，可以使用tuple
+## 同樣使用上面的text為例
+
+import jieba.posseg as pseg
+
+text_pos_cut = pseg.cut(text)  # 使用jieba對text進行斷詞並分類詞性
+text_pos = [(word, pos) for word, pos in text_pos_cut]  # 因詞與詞性是固定的，不可做修改，以tuple將兩者打包
+print(text_pos)
+# >>>[('今天', 't'), ('的', 'uj'), ('天氣', 'n'), ('很', 'd'), ('好', 'a'), ('，', 'x'), ('我', 'r'), ('的', 'uj'), ('心情', 'n'), ('也', 'd'), ('很', 'd'), ('好', 'a'), ('，', 'x'), ('下班', 'v'), ('後', 'nr'), ('想', 'v'), ('去', 'v'), ('咖啡', 'n'), ('廳', 'x'), ('、', 'x'), ('書局', 'n'), ('，', 'x'), ('但', 'c'), ('時間', 'n'), ('不夠', 'v'), ('，', 'x'), ('只好', 'd'), ('回家', 'n')]
+
+## 用於bigram情況下
+import nltk
+from nltk.util import bigrams
+
+sentence = "I love natural language processing"
+tokens = sentence.split()
+
+bigram_list = list(bigrams(tokens))
+
+print(bigram_list)
+# >>>[('I', 'love'), ('love', 'natural'), ('natural', 'language'), ('language', 'processing')]
+## 可用在以前一個詞預測下個詞出現的機率
