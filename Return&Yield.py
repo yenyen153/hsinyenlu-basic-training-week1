@@ -34,3 +34,31 @@ print(num2)
 
 ## 因此可以總結，當接下來的程式需要用到function所產生的結果時，可用return回傳數值，並給予變數名稱
 ## 單純要檢視function產生結果時，用print，或是不確定return值的型態，也可以用print檢查
+
+# %%
+## Function - yield
+
+## return 與 yield對比，return像是一次放一部影片，yield則是可以暫停後，再接著暫停點播放
+## 以下為例
+# return
+def cook_noodles():
+    return "泡麵煮好了！"
+
+
+print(cook_noodles())
+
+
+# yield
+def cook_noodles_step_by_step():
+    yield "倒入水"
+    yield "水煮沸了"
+    yield "放入麵"
+    yield "麵煮好了！"
+
+
+for step in cook_noodles_step_by_step():
+    print(step)
+
+
+## 總結，會使用到yield的情況，是專案需要按步驟，且步驟是能接續的
+## 而return適合用在結果需要一次性就產出在程式中
