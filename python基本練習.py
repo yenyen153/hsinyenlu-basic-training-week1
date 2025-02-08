@@ -80,3 +80,23 @@ bigram_list = list(bigrams(tokens))
 print(bigram_list)
 # >>>[('I', 'love'), ('love', 'natural'), ('natural', 'language'), ('language', 'processing')]
 ## 可用在以前一個詞預測下個詞出現的機率
+
+# %%
+## 資料結構 - dict
+## 銜接tuple部分，雖然tuple可以將詞與詞性組合，並保持資料內容，但tuple不好以直觀方式搜查詞所對應的詞性
+## 而使用dict的話，可以用key(詞)查詢value(詞性)，更加方便
+## 以剛剛的text_pos tuple作為例子
+## text_pos [('今天', 't'), ('天氣', 'n'), ('真好', 'd'), ('，', 'x'), ('好', 'a'), ('想', 'v'), ('去', 'v'), ('環球', 'n'), ('影城', 'n'), ('玩', 'v')]
+
+text_pos_dict = dict(text_pos)
+print(text_pos_dict)
+print('天氣的詞性:', text_pos_dict['天氣'])  # 用dict key,value概念去查找'天氣'的詞性
+# >>>{'今天': 't', '的': 'uj', '天氣': 'n', '很': 'd', '好': 'a', '，': 'x', '我': 'r', '心情': 'n', '也': 'd', '下班': 'v', '後': 'nr', '想': 'v', '去': 'v', '咖啡': 'n', '廳': 'x', '、': 'x', '書局': 'n', '但': 'c', '時間': 'n', '不夠': 'v', '只好': 'd', '回家': 'n'}
+# >>>天氣的詞性: n
+
+## 也可以將詞出現的次數變成dict
+text_num_dict = {word: text_token.count(word) for word in text_token}
+print(text_num_dict)
+
+
+# >>>{'今天': 1, '的': 2, '天氣': 1, '很': 2, '好': 2, '，': 4, '我': 1, '心情': 1, '也': 1, '下班': 1, '後': 1, '想': 1, '去': 1, '咖啡': 1, '廳': 1, '、': 1, '書局': 1, '電影院': 1, '但': 1, '時間': 1, '不夠': 1, '只好': 1, '回家': 1}
