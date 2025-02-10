@@ -31,3 +31,7 @@ acct1 = AccountManger('123-456-789', 'Justin')
 acct1.deposit(100)
 acct1.withdraw(30)
 print(acct1.balance)
+
+# Function : 小寫+底線_ (snake_case)，可以用動詞表達動作
+def calculate_total(*args):
+    return sum(args)
