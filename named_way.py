@@ -7,3 +7,27 @@
 ## Package & Module參考project資料夾展示 (至於Package & Module branch中)
 
 ## 可以參考branch:Package&Module的檔案
+
+# Class : PascalCase，像駝峰一樣，有高低大小寫，每個單字首字母大寫，不要使用_ --> AccountManager
+class AccountManger:
+    def __init__(self, number, name):
+        self.number = number
+        self.name = name
+        self.balance = 0
+
+    def deposit(self, amount):
+        if amount <= 0:
+            raise ValueError('must be positive')
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if amount <= self.balance:
+            self.balance -= amount
+        else:
+            raise RuntimeError('balance not enough')
+
+
+acct1 = AccountManger('123-456-789', 'Justin')
+acct1.deposit(100)
+acct1.withdraw(30)
+print(acct1.balance)
