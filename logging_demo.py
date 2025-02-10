@@ -20,3 +20,24 @@ logging.critical("這是critical")  # critical 對應數值50
 # >>>2025-02-10 09:20:53,154 - root - WARNING - 這是warning
 # >>>2025-02-10 09:20:53,154 - root - ERROR - 這是error
 # >>>2025-02-10 09:20:53,154 - root - CRITICAL - 這是critical
+
+# %%
+# 如何輸出⾄file
+
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    filename='logdemo.log',  # 將日誌記錄在名為logdemo.log的檔案中
+                    filemode='w',  # w表示填寫，這樣會使logdemo.log在每次執行後都被重新填寫，如果不要被重新填寫，可以用a(append)添加
+                    encoding='utf-8',
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+logger = logging.getLogger(__name__)  # logger的名字
+
+logging.debug("這是debug")  # debug 對應數值10
+logging.info("這是info")  # info 對應數值20
+logging.warning("這是warning")  # warning 對應數值30
+logging.error("這是error")  # error 對應數值40
+logging.critical("這是critical")  # critical 對應數值50
+
+## 剛剛上面輸出至console的訊息，就會被記錄在名為logdemo.log的日誌中
