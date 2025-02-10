@@ -1,0 +1,7 @@
+# 如何建立git repository - 已經有使⽤git版控的專案
+## 如果是指如何使用已經存在於github上的repository
+## 可以從github上找到指定的repository，找尋code --> 複製http
+## 於自己電腦的terminal輸入 git clone <剛剛複製的http>
+## 即可下載github上存在的專案於自己電腦中
+
+- git clone <repository url>
