@@ -41,3 +41,15 @@ logging.error("這是error")  # error 對應數值40
 logging.critical("這是critical")  # critical 對應數值50
 
 ## 剛剛上面輸出至console的訊息，就會被記錄在名為logdemo.log的日誌中
+# %%
+## 想同時輸出在console與logdemo.log中
+import logging
+
+# 設定 Handler
+console_handler = logging.StreamHandler()  # 輸出到 Console
+file_handler = logging.FileHandler("logdemo2.log", "w", encoding='utf-8')  # 輸出到檔案
+
+# 設定 Logger
+logging.basicConfig(level=logging.INFO, handlers=[console_handler, file_handler])
+
+logging.info("訊息會出現在Console也會寫入logdemo2.log")
