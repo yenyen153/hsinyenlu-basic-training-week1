@@ -1,0 +1,7 @@
+# %%
+# .gitignore的意義
+## 雖然git可以追蹤檔案變更，有助於開發者理解程式版本不同的影響，但有些資料並不希望被git追蹤
+## 例如API_KEY、密碼等等，或是一些與程式開發無直接關聯的.exe，如果一直顯示在untracked file中，也會使版面混亂
+## 因此可以建立一個.gitignore檔，將不想被git追蹤的檔案名稱打在.gitignore檔中(通常gitignore會隨著repository建立，但也可以自己建立)
+
+# 可參考.gitignore示範檔
