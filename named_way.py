@@ -35,3 +35,8 @@ print(acct1.balance)
 # Function : 小寫+底線_ (snake_case)，可以用動詞表達動作
 def calculate_total(*args):
     return sum(args)
+
+# Variable : 小寫+底線_ (snake_case)，使用名詞表達
+user_age = 25
+
+## 以上命名規則都要去避免，已經存在於python中的關鍵字，例如key、class、def......
