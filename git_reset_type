@@ -1,0 +1,14 @@
+# 檔案還原
+## 檔案還原分成狀態還原、內容還原、commit還原
+
+## 狀態還原 - add後的檔案還原
+## 狀態改成untracked，檔案內容不變
+git reset <file name>
+
+## 內容還原 - 修改了檔案，但還沒add，想回覆上一次commit
+## 內容回到上個commit時的版本，且狀態改為changes to be committed
+git checkout -- <file name>
+
+## commit還原 - 已經commit了，但想收回
+## 內容不變，commit被收回，檔案狀態改成changes to be committed
+git reset soft HEAD~1

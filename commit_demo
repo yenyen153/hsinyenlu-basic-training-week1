@@ -1,0 +1,23 @@
+# 如何進⾏提交(commit)
+# 1. 使用git status確認檔案是否已經被追蹤
+# 2. 若為untracked file，要先git add <file name>，若已經被追蹤，可以跳到第3步
+# 3. 接下來git commit -m"欲輸入訊息"
+
+####目前都還在本地commit，還沒commit到遠端github或其他雲端中####
+
+# 4. 確認github已有一個repository，在git bash或terminal中輸入git remote add origin "你的github網址"
+# 5. 提交到github雲端中，使用git push -u origin main
+
+#### main與master有差異，要注意自己本地git給予的default名稱是甚麼，origin就是指本地名)
+
+## 流程
+
+- git add <file name>
+
+- git commit -m"commit message"
+
+# push到github上
+
+- git remote add origin <github repository url>
+
+- git push -u origin master

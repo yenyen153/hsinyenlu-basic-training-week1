@@ -1,0 +1,19 @@
+# 如何建立git repository - 全新的專案
+
+- 1. terminal --> mkdir <repository_name>
+- 1. terminal --> git init (這一步完成後會發現檔名後面多了.git，表示該資料夾已被git追蹤，但不等於資料夾裡面的檔案也被追蹤)
+
+###用git status查看，repository中的檔案是紅色字，顯示untracked file，表示檔案沒被追蹤)###
+
+- 1. terminal --> git add <file_name>
+
+###用git status查看，檔案名變成綠色，並顯示Changes to be committed，代表已經被git追蹤
+
+##流程
+- mkdir my_first_repository
+
+- git init
+
+- git add <file name>
+
+- git commit =m"commit message"

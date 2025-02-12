@@ -1,0 +1,12 @@
+# %%
+# 如何切換branch
+## branch可用來切分與main/master的程式，在沒有merge情況下，branch並不會影響到main/master
+
+## 有branch情況下，切換到指定branch
+git checkout <branch name>
+
+## 建立branch並切換
+git checkout -b <branch name>
+
+## 查看目前有哪些branch
+git branch
