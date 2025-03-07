@@ -39,9 +39,9 @@ def data_in(Session,**ptt_post): # todo: change name to define style
         session.commit()
         session.close()
 
-def LogIn(Session,Crawlerfile):
+def LogIn(Session,Crawlerlog):
     with Session() as session:
-        with open(Crawlerfile, "r", encoding='utf-8') as log_file:
+        with open(Crawlerlog, "r", encoding='utf-8') as log_file:
             logs = log_file.readlines()
             try:
                 for log in logs:
