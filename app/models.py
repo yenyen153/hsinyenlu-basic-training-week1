@@ -19,7 +19,7 @@ class PttPostsTable(Base):
 
 class BoardTable(Base):
     __tablename__ = "board"
-  # todo: make sure is borad or borad_name
+
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     board = sa.Column(sa.String(60), unique=True, nullable=False)
     url = sa.Column(sa.String(255), nullable=False)

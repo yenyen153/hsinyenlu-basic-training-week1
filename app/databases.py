@@ -1,19 +1,20 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 
 
 engine = create_engine(
-    "mysql+pymysql://user:password@localhost/ptt_db"
+    "mysql+pymysql://user:password@localhost/ptt_db?charset=utf8mb4",
+    connect_args={"charset": "utf8mb4"}
+
 )
 
-SessionLocal = sessionmaker(bind=engine)
+Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
 
 def get_db():
-    db = SessionLocal()
+    db = Session()
     try:
         yield db
     finally:
