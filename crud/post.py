@@ -127,26 +127,6 @@ def update_post_data(db, post_id, **post_update):
 
     return post
 
-# def get_or_create_author(db, author):
-#     author = author_crud.get_author_by_ptt_id(db, ptt_post['author_ptt_id'])
-#     if not author:
-#         author = author_crud.create_author(db, **ptt_post)
-#     return author
-
-
-
-# def check_author_and_board(db, **ptt_post):  # origin data_check
-#     author = author_crud.get_author_by_ptt_id(db, ptt_post['author_ptt_id'])
-#     board = board_crud.get_board_by_board_name(db, ptt_post['board_name'])
-#
-#     if not author:
-#         author = author_crud.create_author(db, **ptt_post)
-#
-#     if not board:
-#         board = board_crud.create_board(db,**ptt_post)
-#
-#     return board, author
-
 
 def data_in(db, **ptt_post):
     post = open_ptt_post_by_link(db, ptt_post['link'])
