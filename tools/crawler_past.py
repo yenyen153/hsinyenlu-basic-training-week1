@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 engine = create_engine("mysql+pymysql://user:password@localhost/ptt_db")
 Session = sessionmaker(bind=engine)
-session = Session()
+
 
 one_year_ago = datetime.now() - timedelta(days=366)
 one_year_ago_str = one_year_ago.strftime("%Y/%m/%d")
@@ -75,10 +75,11 @@ def run_crawler():
             continue
 
         for post in posts:
+            db = Session()
             try:
                 post['date'] = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
                 CreatePosts(**post)
-                data_in(session, **post)
+                data_in(db, **post)
                 logger.info(f"成功儲存文章: {post['title']}")
 
             except Exception as e:
