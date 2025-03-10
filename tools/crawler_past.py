@@ -1,11 +1,10 @@
 from datetime import timedelta
 import logging
 from sqlalchemy.orm import sessionmaker
-from tools.crawler_update import *
+from tools.crawler_tool import *
 from sqlalchemy import create_engine
 from app.schemas import *
 from crud.post import data_in
-from app.databases import get_db
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,8 +15,6 @@ session = Session()
 
 one_year_ago = datetime.now() - timedelta(days=366)
 one_year_ago_str = one_year_ago.strftime("%Y/%m/%d")
-
-# db = get_db()
 
 def fetch_board_posts(board_name):
 

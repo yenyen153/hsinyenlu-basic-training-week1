@@ -50,7 +50,6 @@ def fetch_author(link):
             details_list.append(author.text)
 
         posts_detail = {
-            # 'board_name':details_list[1],  # todo: 3/3 這邊改成直接用for board_name in PTTboard的boare
             'title':details_list[2],
             'author_ptt_id':((details_list[0].split('('))[0]).rstrip(),
             'author_nickname':((details_list[0].split('('))[1]).rstrip(')') if (details_list[0].split('('))[1] else "no nickname"
