@@ -1,20 +1,23 @@
 from datetime import timedelta
 import logging
-from tools.data_insert import *
 from sqlalchemy.orm import sessionmaker
 from tools.crawler_update import *
 from sqlalchemy import create_engine
 from app.schemas import *
-
+from crud.post import data_in
+from app.databases import get_db
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 engine = create_engine("mysql+pymysql://user:password@localhost/ptt_db")
 Session = sessionmaker(bind=engine)
+session = Session()
 
 one_year_ago = datetime.now() - timedelta(days=366)
 one_year_ago_str = one_year_ago.strftime("%Y/%m/%d")
+
+# db = get_db()
 
 def fetch_board_posts(board_name):
 
@@ -39,11 +42,11 @@ def fetch_board_posts(board_name):
             post_url = 'https://www.ptt.cc' + link['href']
 
             try:
-                post = fetch_author(post_url)  # todo: 3/3 這邊的board_name改成for board_name in PTTboard的board_name
+                post = fetch_author(post_url)
                 post_date = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
                 try:
-                    if 2024 <= post_date.year < 2025:
-                        post['board'] = board_name
+                    if 2024 <= post_date.year <= 2025:
+                        post['board_name'] = board_name
                         yield post
 
                     elif post_date.year < 2024:
@@ -60,8 +63,8 @@ def fetch_board_posts(board_name):
 
         next_page = soup.select('a.btn.wide')[1]['href']
         url = f"https://www.ptt.cc{next_page}"
-# "Stock",
-PTT_BOARDS = [ "Baseball", "Lifeismoney","home-sale", "MobileComm"]
+# "Stock","Baseball","Lifeismoney","home-sale", "mobilecomm"
+PTT_BOARDS = ["Baseball"]
 
 def run_crawler():
 
@@ -76,9 +79,9 @@ def run_crawler():
 
         for post in posts:
             try:
-                PttPostModel(**post)
-                data_check(Session, **post)
-                data_in(Session, **post)
+                post['date'] = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
+                CreatePosts(**post)
+                data_in(session, **post)
                 logger.info(f"成功儲存文章: {post['title']}")
 
             except Exception as e:
