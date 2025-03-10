@@ -8,7 +8,6 @@ from app.schemas import *
 from app.models import *
 
 
-# get_post
 def get_post_by_id(db, post_id):
     post = post_crud.open_ptt_post_by_id(db, post_id)
     try:
@@ -18,14 +17,12 @@ def get_post_by_id(db, post_id):
     return post
 
 
-# delete_post
 def delete_post_by_id(db, post_id):
     post = post_crud.open_ptt_post_by_id(db, post_id)
     db.delete(post)
     db.commit()
 
 
-# get_posts和get_statics都會共用到利用post_date, board_name, author_ptt_id做篩選 所以統一個function來做篩選
 def common_filters(db, query, post_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
     filters = []
 
@@ -56,7 +53,6 @@ def common_filters(db, query, post_date: datetime = None, board_name: str = None
     return query
 
 
-# get_statistics
 def get_statistics_data(db, post_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
     query = db.query(func.count(PttPostsTable.id))
     query = common_filters(db, query, post_date, board_name, author_ptt_id)
@@ -65,7 +61,6 @@ def get_statistics_data(db, post_date: datetime = None, board_name: str = None, 
     return posts_total
 
 
-# get_posts
 def get_filtered_posts(db, limit: int, offset: int, post_date: datetime = None, board_name: str = None,
                        author_ptt_id: str = None):
     query = db.query(PttPostsTable)
@@ -124,7 +119,7 @@ def update_post_data(db, post_id, **post_update):
 
 
 def data_check(db, **ptt_post):
-    author = author_crud.open_author_by_ptt_id(db, ptt_post['author_ptt_id'])
+    author = author_crud.get_author_by_ptt_id(db, ptt_post['author_ptt_id'])
     board = board_crud.get_board_by_board_name(db, ptt_post['board_name'])
 
     if not author:
