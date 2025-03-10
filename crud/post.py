@@ -1,24 +1,34 @@
 from fastapi import HTTPException, status
 from sqlalchemy import func, and_
 from sqlalchemy.exc import IntegrityError
-import crud.ptt_posts as post_crud
 import crud.author as author_crud
 import crud.board as board_crud
 from app.schemas import *
 from app.models import *
 
 
+
+def open_ptt_post_by_link(db, link):
+    return db.query(PttPostsTable).filter_by(link=link).first()
+
+def open_ptt_post_by_id(db,post_id):
+    post = db.get(PttPostsTable,post_id)
+
+    return post
+
 def get_post_by_id(db, post_id):
-    post = post_crud.open_ptt_post_by_id(db, post_id)
+    post = open_ptt_post_by_id(db, post_id)
     try:
         post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
-    except:
+    except ValueError:
         post.date = post.date
+    except Exception as e:
+        print(e)
     return post
 
 
 def delete_post_by_id(db, post_id):
-    post = post_crud.open_ptt_post_by_id(db, post_id)
+    post = open_ptt_post_by_id(db, post_id)
     db.delete(post)
     db.commit()
 
@@ -79,7 +89,7 @@ def get_filtered_posts(db, limit: int, offset: int, post_date: datetime = None, 
 
 
 def update_post_data(db, post_id, **post_update):
-    post = post_crud.open_ptt_post_by_id(db, post_id)
+    post = open_ptt_post_by_id(db, post_id)
     if post is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有這篇貼文")
 
@@ -117,26 +127,34 @@ def update_post_data(db, post_id, **post_update):
 
     return post
 
+# def get_or_create_author(db, author):
+#     author = author_crud.get_author_by_ptt_id(db, ptt_post['author_ptt_id'])
+#     if not author:
+#         author = author_crud.create_author(db, **ptt_post)
+#     return author
 
-def data_check(db, **ptt_post):
-    author = author_crud.get_author_by_ptt_id(db, ptt_post['author_ptt_id'])
-    board = board_crud.get_board_by_board_name(db, ptt_post['board_name'])
 
-    if not author:
-        author = board_crud.create_board(db,**ptt_post)
 
-    if not board:
-        board = board_crud.create_board(db,**ptt_post)
-
-    return board, author
+# def check_author_and_board(db, **ptt_post):  # origin data_check
+#     author = author_crud.get_author_by_ptt_id(db, ptt_post['author_ptt_id'])
+#     board = board_crud.get_board_by_board_name(db, ptt_post['board_name'])
+#
+#     if not author:
+#         author = author_crud.create_author(db, **ptt_post)
+#
+#     if not board:
+#         board = board_crud.create_board(db,**ptt_post)
+#
+#     return board, author
 
 
 def data_in(db, **ptt_post):
-    post = post_crud.open_ptt_post_by_link(db, ptt_post['link'])
+    post = open_ptt_post_by_link(db, ptt_post['link'])
+    board = board_crud.check_board(db,**ptt_post)
+    author = author_crud.check_author(db,**ptt_post)
+
     if post:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='貼文已經存在')
-
-    board, author = data_check(db, **ptt_post)
 
     new_ptt_post = PttPostsTable(
         board_id=board.id,
