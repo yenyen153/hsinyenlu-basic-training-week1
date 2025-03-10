@@ -1,17 +1,5 @@
-from datetime import datetime
-
 from celery import Celery
 from celery.schedules import crontab
-
-
-import logging
-from tools.crawler_tool import fetch_author, PTT_BOARDS
-from sqlalchemy.orm import sessionmaker
-from crud.post import data_in
-from app.schemas import CreatePosts
-from tools.crawler_tool import fetch_author,fetch_link
-
-from datetime import timedelta
 import logging
 from sqlalchemy.orm import sessionmaker
 from tools.crawler_tool import *
@@ -45,7 +33,6 @@ logging.basicConfig(
 
 engine = create_engine("mysql+pymysql://user:password@localhost/ptt_db")
 Session = sessionmaker(bind=engine)
-session = Session()
 
 @app.task
 def run_crawler():
@@ -56,13 +43,20 @@ def run_crawler():
     for board in PTT_BOARDS:
         links = fetch_link(board)
         for link in links:
+            db = Session()
             try:
                 post = fetch_author(link)
                 post['date'] = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
 
                 CreatePosts(**post)
-                data_in(session,**post)
-            except:
-                pass
+                data_in(db,**post)
+                db.commit()
+            except Exception as e:
+                db.rollback()
+                my_logger.error(f"插入失敗: {str(e)}")
+
+            fianlly:
+            db.close()
+
 
     log_in(Session,'crawler.log')
