@@ -28,7 +28,7 @@ async def get_post(post_id: int, db: Session = Depends(get_db)):
     try:
         post = get_post_by_id(db, post_id)
     except:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="找不到這則文章！")
     return post
 
 
