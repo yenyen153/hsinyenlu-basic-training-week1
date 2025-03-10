@@ -72,12 +72,12 @@ async function fetchPosts(event) { ///用條件取完整文章
     }
 }
 
-function updatePostsTable(posts) {//新增文章
+function updatePostsTable(posts) {
     let tableBody = document.getElementById("posts-table-body");
     tableBody.innerHTML = "";
 
     if (posts.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5">沒有符合條件的文章</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="4">沒有符合條件的文章</td></tr>`;
         return;
     }
 
@@ -87,13 +87,11 @@ function updatePostsTable(posts) {//新增文章
             <td>${post.title}</td>
             <td><a href="${post.link}" target="_blank">${post.link}</a></td>
             <td>${post.date}</td>
-            <td>
-                <button onclick="deletePost(${post.id})">刪除</button>
-            </td>
         </tr>`;
         tableBody.innerHTML += row;
     });
 }
+
 
 async function fetchPostById(event) { //用id取單篇文章
     event.preventDefault();
