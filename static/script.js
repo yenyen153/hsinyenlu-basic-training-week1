@@ -1,4 +1,4 @@
-async function fetchStatistics(event) { //用條件取文章數量
+async function fetchStatistics(event) { //用條件統計文章數量
     event.preventDefault();
 
     const form = document.getElementById("get-statistics-form");
@@ -72,7 +72,7 @@ async function fetchPosts(event) { ///用條件取完整文章
     }
 }
 
-function updatePostsTable(posts) {
+function updatePostsTable(posts) { //呈上的function 要展示出的樣子
     let tableBody = document.getElementById("posts-table-body");
     tableBody.innerHTML = "";
 
@@ -117,6 +117,7 @@ async function fetchPostById(event) { //用id取單篇文章
                 <table border="1">
                     <tr><th>ID</th><td>${data.id}</td></tr>
                     <tr><th>標題</th><td>${data.title}</td></tr>
+                    <tr><th>版面代碼</th><td>${data.board_id}</td></tr>
                     <tr><th>連結</th><td><a href="${data.link}" target="_blank">${data.link}</a></td></tr>
                     <tr><th>發文日期</th><td>${data.date}</td></tr>
                     <tr><th>內容</th><td>${data.content}</td></tr>
@@ -183,9 +184,9 @@ async function createPost(event) {
         let resultElement = document.getElementById("create-post-result");
 
         if (response.ok) {
-            resultElement.textContent = `✅ 貼文新增成功！ID: ${data.id}`;
+            resultElement.textContent = `貼文新增成功！ID: ${data.id}`;
         } else {
-            let errorMessage = `❌ 錯誤:\n`;
+            let errorMessage = `錯誤:\n`;
             if (Array.isArray(data.detail)) {
                 data.detail.forEach(err => {
                     errorMessage += `- ${err.msg} (${err.loc.join(" → ")})\n`;
@@ -197,7 +198,7 @@ async function createPost(event) {
         }
     } catch (error) {
         console.error("API 請求錯誤:", error);
-        document.getElementById("create-post-result").textContent = "❌ 請求失敗，請檢查 API 或網路連線！";
+        document.getElementById("create-post-result").textContent = "請求失敗，請檢查 API 或網路連線！";
     }
 }
 
