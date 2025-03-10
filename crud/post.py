@@ -20,10 +20,11 @@ def get_post_by_id(db, post_id):
     post = open_ptt_post_by_id(db, post_id)
     try:
         post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
-    except ValueError:
+    except TypeError:
         post.date = post.date
-    except Exception as e:
-        print(e)
+    except ValueError as v:
+        print(v)
+
     return post
 
 
