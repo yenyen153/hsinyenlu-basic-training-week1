@@ -1,5 +1,4 @@
-from pydantic import BaseModel, HttpUrl, field_validator, Field
-import re
+from pydantic import BaseModel, HttpUrl
 from datetime import datetime
 
 class CreatePosts(BaseModel):
