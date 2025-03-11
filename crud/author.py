@@ -6,11 +6,6 @@ def get_author_by_ptt_id(db, author_ptt_id):
     return author
 
 
-def get_author_by_id(db, author_id):
-    author = db.query(AuthorTable).get(author_id)
-    return author
-
-
 def get_and_create_author(db, author_ptt_id, author_nickname,create_if_not_exists=False):
     author = get_author_by_ptt_id(db, author_ptt_id)
     if not author:
@@ -22,7 +17,6 @@ def get_and_create_author(db, author_ptt_id, author_nickname,create_if_not_exist
             db.add(author)
             db.commit()
             db.refresh(author)
-                # create_author(db,author_ptt_id, author_nickname ))
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有作者")
 
