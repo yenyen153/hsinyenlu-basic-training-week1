@@ -15,8 +15,6 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-
-
 @app.get("/")
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -71,7 +69,7 @@ async def get_statistics(
 
 @app.post("/api/posts", response_model=PostResponse)
 async def create_post(post: CreatePosts, db: Session = Depends(get_db)):
-    new_post = data_in(
+    new_post = input_post(
         db,
         board_name=post.board_name,
         title=post.title,
@@ -100,3 +98,22 @@ async def update_post(post_id: int, post_update: CreatePosts, db: Session = Depe
     )
 
     return updated_post
+
+
+@app.delete("/delete_board/{board_id}")
+async def delete_board(board_id: int, db: Session = Depends(get_db)):
+    try:
+        board_crud.delete_board(db, board_id)
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="wrong 請檢查是否有文章或該版面存在")
+
+    return {"message": "版面刪除成功"}
+
+
+@app.get("/api/board/{board_id}")
+async def get_board(board_id: int, db: Session = Depends(get_db)):
+    try:
+        board = board_crud.get_board_by_id(db,board_id)
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="找不到這個版面")
+    return board
