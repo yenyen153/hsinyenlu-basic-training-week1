@@ -9,6 +9,7 @@ from crud.post import *
 app = FastAPI()
 
 
+
 static_dir = Path(__file__).resolve().parent / "static"
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
@@ -20,7 +21,7 @@ async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-# 得單篇
+
 @app.get("/posts/{post_id}", response_model=PostResponse)
 async def get_post(post_id: int, db: Session = Depends(get_db)):
     try:
@@ -30,7 +31,7 @@ async def get_post(post_id: int, db: Session = Depends(get_db)):
     return post
 
 
-# 刪單篇
+
 @app.delete("/delete/{post_id}")
 async def delete_post(post_id: int, db: Session = Depends(get_db)):
     try:
@@ -38,7 +39,7 @@ async def delete_post(post_id: int, db: Session = Depends(get_db)):
     except:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="找不到這篇文章")
 
-    return {"message": "文章刪除成功"}
+    return "文章刪除成功"
 
 
 @app.get("/posts", response_model=list[PostResponse])
@@ -69,36 +70,15 @@ async def get_statistics(
 
 @app.post("/api/posts", response_model=PostResponse)
 async def create_post(post: CreatePosts, db: Session = Depends(get_db)):
-    new_post = input_post(
-        db,
-        board_name=post.board_name,
-        title=post.title,
-        link=str(post.link),
-        author_ptt_id=post.author_ptt_id,
-        date=post.date,
-        author_nickname=post.author_nickname,
-        content=post.content
-    )
+    new_post = input_post(db,**dict(post))
 
     return new_post
 
-
 @app.put("/api/posts/{post_id}", response_model=PostResponse)
 async def update_post(post_id: int, post_update: CreatePosts, db: Session = Depends(get_db)):
-    updated_post = update_post_data(
-        db,
-        post_id,
-        board_name=post_update.board_name,
-        title=post_update.title,
-        link=str(post_update.link),
-        author_ptt_id=post_update.author_ptt_id,
-        date=post_update.date,
-        author_nickname=post_update.author_nickname,
-        content=post_update.content
-    )
+    updated_post = update_post_data(db, post_id, **dict(post_update))
 
     return updated_post
-
 
 @app.delete("/delete_board/{board_id}")
 async def delete_board(board_id: int, db: Session = Depends(get_db)):
@@ -107,7 +87,7 @@ async def delete_board(board_id: int, db: Session = Depends(get_db)):
     except:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="wrong 請檢查是否有文章或該版面存在")
 
-    return {"message": "版面刪除成功"}
+    return  "版面刪除成功"
 
 
 @app.get("/api/board/{board_id}")
