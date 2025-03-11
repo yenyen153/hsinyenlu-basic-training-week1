@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from app.posts import app
+from main import app
 from app.databases import Base, get_db
 from app.models import PttPostsTable, BoardTable, AuthorTable
 
