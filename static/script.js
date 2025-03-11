@@ -154,7 +154,7 @@ async function deletePostById(event) {//用id刪除文章
     }
 }
 
-async function createPost(event) {
+async function createPost(event) { //新增文章
     event.preventDefault();
 
     const form = document.getElementById("create-post-form");
@@ -203,7 +203,7 @@ async function createPost(event) {
 }
 
 
-async function updatePost(event) {
+async function updatePost(event) { //更新文徵
     event.preventDefault();
 
     let postId = document.getElementById("update_post_id").value.trim();
@@ -215,7 +215,7 @@ async function updatePost(event) {
     const form = document.getElementById("update-post-form");
     const formData = new FormData(form);
 
-    let url = `http://127.0.0.1:8000/api/posts/${postId}`;  // 修正 URL
+    let url = `http://127.0.0.1:8000/api/posts/${postId}`;
     console.log(`API 請求: PUT ${url}`);
 
     let postData = {};
@@ -223,7 +223,6 @@ async function updatePost(event) {
         postData[key] = value.trim();
     });
 
-    // 確保日期格式為 ISO 8601
     if (postData["date"]) {
         postData["date"] = new Date(postData["date"]).toISOString();
     }
@@ -257,6 +256,69 @@ async function updatePost(event) {
 }
 
 
+
+async function deleteBoardById(event) {//用id刪除版面
+    event.preventDefault();
+    let boardId = document.getElementById("delete_board_id").value.trim();
+    if (!boardId) {
+        alert("請輸入版面 ID！");
+        return;
+    }
+
+    let url = `http://127.0.0.1:8000/delete_board/${boardId}`;
+    console.log(`API 請求: DELETE ${url}`);
+
+    try {
+        let response = await fetch(url, { method: "DELETE" });
+        let data = await response.json();
+
+        document.getElementById("delete-board-result").textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+        console.error("API 請求錯誤:", error);
+        document.getElementById("delete-board-result").textContent = "刪除失敗";
+    }
+}
+
+
+async function fetchBoardById(event) { //用id取版面
+    event.preventDefault();
+    let boardId = document.getElementById("board_id").value.trim();
+    if (!boardId) {
+        alert("請輸入版面 ID！");
+        return;
+    }
+
+    let url = `http://127.0.0.1:8000/api/board/${boardId}`;
+    console.log(`API 請求: GET ${url}`);
+
+    try {
+        let response = await fetch(url, { method: "GET" });
+        let data = await response.json();
+
+        let resultContainer = document.getElementById("get-board-result");
+        resultContainer.innerHTML = "";
+
+        if (response.ok) {
+
+            resultContainer.innerHTML = `
+                <table>
+                    <tr><th>ID</th><td>${data.id}</td></tr>
+                    <tr><th>版面</th><td>${data.board}</td></tr>
+                    <tr><th>版面連結</th><td>${data.url}</td></tr>
+                </table>
+            `;
+        } else {
+            resultContainer.innerHTML = `<p style="color: red;">錯誤: ${data.detail}</p>`;
+        }
+    } catch (error) {
+        console.error("API 請求錯誤:", error);
+        document.getElementById("get-board-result").innerHTML = `<p style="color: red;">沒有這個版面！</p>`;
+    }
+}
+
+
+document.getElementById("get-board-form").addEventListener("submit", fetchBoardById);
+document.getElementById("delete-board-form").addEventListener("submit", deleteBoardById);
 document.getElementById("update-post-form").addEventListener("submit", updatePost);
 document.getElementById("create-post-form").addEventListener("submit", createPost);
 document.getElementById("get-posts-form").addEventListener("submit", fetchPosts);
