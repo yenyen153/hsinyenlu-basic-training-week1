@@ -1,29 +1,32 @@
 from app.models import *
+from fastapi import HTTPException, status
 
-def get_board_by_board_name(db, board_name):
-    board = db.query(BoardTable).filter_by(board=board_name).first()
-
-    return board
 
 def get_board_by_id(db, board_id):
-    board = db.query(BoardTable).get(board_id)
+    board = db.get(BoardTable,board_id)
     return board
 
-
-def create_board(db, **ptt_post):
-    board = BoardTable(
-        board=ptt_post['board_name'],
-        url=f"https://www.ptt.cc/bbs/{ptt_post['board_name']}/index.html"
-    )
-    db.add(board)
-    db.commit()
-    db.refresh(board)
-    return board
-
-
-def check_board(db, **ptt_post):
-    board = get_board_by_board_name(db, ptt_post['board_name'])
+# Todo finish get_board_by_board_name and author (finish)
+def get_and_create_board(db, board_name,create_if_not_exists=False):
+    board = db.query(BoardTable).filter_by(board=board_name).first()
     if not board:
-        board = create_board(db, **ptt_post)
+        if create_if_not_exists:
+            board = BoardTable(
+                board=board_name,
+                url=f"https://www.ptt.cc/bbs/{board_name}/index.html"
+            )
+            db.add(board)
+            db.commit()
+            db.refresh(board)
 
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有這個版")
+
+    return board
+
+
+def delete_board(db, board_id):
+    board = get_board_by_id(db, board_id)
+    db.delete(board)
+    db.commit()
     return board
