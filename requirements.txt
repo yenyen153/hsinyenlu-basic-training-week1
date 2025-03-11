@@ -40,3 +40,4 @@ PyMySQL~=1.1.1
 pytest-mock~=3.14.0
 fastapi
 uvicorn
+pydantic-settings
