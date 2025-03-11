@@ -114,7 +114,7 @@ async function fetchPostById(event) { //用id取單篇文章
         if (response.ok) {
 
             resultContainer.innerHTML = `
-                <table border="1">
+                <table>
                     <tr><th>ID</th><td>${data.id}</td></tr>
                     <tr><th>標題</th><td>${data.title}</td></tr>
                     <tr><th>版面代碼</th><td>${data.board_id}</td></tr>
