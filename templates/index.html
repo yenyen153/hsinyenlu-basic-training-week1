@@ -9,6 +9,16 @@
 <body>
     <h1>PTT 文章管理系統</h1>
 
+    <h2>統計文章數</h2>
+    <form id="get-statistics-form">
+        <label>版面名稱: <input type="text" id="stat_board_name" name="board_name"></label>
+        <label>作者 PTT ID: <input type="text" id="stat_author_ptt_id" name="author_ptt_id"></label>
+        <label>發文日期: <input type="date" id="stat_post_date" name="post_date"></label>
+        <button type="submit">查詢統計</button>
+    </form>
+    <pre id="statistics-result"></pre>
+
+
     <h2>查詢文章</h2>
     <form id="get-posts-form">
         <label>版面名稱: <input type="text" id="post_board_name" name="board_name"></label>
@@ -30,13 +40,22 @@
         <tbody id="posts-table-body"></tbody>
     </table>
 
+
     <h2>查詢單篇文章</h2>
     <form id="get-post-form">
         <label>文章 ID: <input type="number" id="post_id" required></label>
         <button type="submit">查詢</button>
     </form>
-
     <div id="get-post-result"></div>
+
+
+    <h2>查詢版面</h2>
+    <form id="get-board-form">
+        <label>版面 ID: <input type="number" id="board_id" required></label>
+        <button type="submit">查詢</button>
+    </form>
+    <div id="get-board-result"></div>
+
 
     <h2>刪除文章</h2>
     <form id="delete-post-form">
@@ -46,15 +65,12 @@
     <pre id="delete-post-result"></pre>
 
 
-    <h2>統計文章數</h2>
-    <form id="get-statistics-form">
-        <label>版面名稱: <input type="text" id="stat_board_name" name="board_name"></label>
-        <label>作者 PTT ID: <input type="text" id="stat_author_ptt_id" name="author_ptt_id"></label>
-        <label>發文日期: <input type="date" id="stat_post_date" name="post_date"></label>
-        <button type="submit">查詢統計</button>
+    <h2>刪除版面</h2>
+    <form id="delete-board-form">
+        <label>版面 ID: <input type="number" id="delete_board_id" required></label>
+        <button type="submit">刪除</button>
     </form>
-    <pre id="statistics-result"></pre>
-
+    <pre id="delete-board-result"></pre>
 
 
     <h2>新增貼文</h2>
