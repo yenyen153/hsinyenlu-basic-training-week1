@@ -4,14 +4,15 @@ from sqlalchemy.orm import sessionmaker
 from tools.crawler_tool import *
 from sqlalchemy import create_engine
 from app.schemas import *
-from crud.post import data_in
+from crud.post import input_post
+from settings import settings
+from fastapi import status
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-engine = create_engine("mysql+pymysql://user:password@localhost/ptt_db")
+engine = create_engine(settings.DATABASE_URL)
 Session = sessionmaker(bind=engine)
-
 
 one_year_ago = datetime.now() - timedelta(days=366)
 one_year_ago_str = one_year_ago.strftime("%Y/%m/%d")
@@ -19,16 +20,14 @@ one_year_ago_str = one_year_ago.strftime("%Y/%m/%d")
 def fetch_board_posts(board_name):
 
     url = f"https://www.ptt.cc/bbs/{board_name}/index.html"
-
     while url:
-
         try:
             response = requests.get(url)
         except Exception as e:
             logging.error(e.with_traceback())
             break
 
-        if response.status_code != 200:
+        if response.status_code != status.HTTP_200_OK:
             logger.error(f"Failed to fetch {url}, status code: {response.status_code}")
             break
 
@@ -37,7 +36,6 @@ def fetch_board_posts(board_name):
 
         for link in links:
             post_url = 'https://www.ptt.cc' + link['href']
-
             try:
                 post = fetch_author(post_url)
                 post_date = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
@@ -47,7 +45,7 @@ def fetch_board_posts(board_name):
                         yield post
 
                     elif post_date.year < 2024:
-                        logger.info(f"遇到其他年份的文章，結束爬取 {board_name} 版")
+                        logger.info(f"遇到其他年份 結束爬取 {board_name} 版")
                         return
 
                 except Exception as e:
@@ -60,14 +58,14 @@ def fetch_board_posts(board_name):
 
         next_page = soup.select('a.btn.wide')[1]['href']
         url = f"https://www.ptt.cc{next_page}"
-# "Stock","Baseball","Lifeismoney","home-sale", "mobilecomm"
-PTT_BOARDS = ["Baseball"]
+
+
+PTT_BOARDS = ["Baseball","Stock","Baseball","Lifeismoney","home-sale", "mobilecomm"]
 
 def run_crawler():
 
     for board in PTT_BOARDS:
         logger.info(f"開始爬取 {board} 版的文章...")
-
         try:
             posts = fetch_board_posts(board)
         except Exception as e:
@@ -79,16 +77,12 @@ def run_crawler():
             try:
                 post['date'] = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
                 CreatePosts(**post)
-                data_in(db, **post)
+                input_post(db, **post)
                 logger.info(f"成功儲存文章: {post['title']}")
 
             except Exception as e:
-                logger.error(f"Error processing post {post['title']}: {str(e)}")
+                logger.error(f"{post['title']}: {str(e)}")
                 continue
-
-
-
-
 
 if __name__ == "__main__":
     run_crawler()
