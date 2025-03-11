@@ -6,7 +6,7 @@ import crud.board as board_crud
 from app.schemas import *
 from app.models import *
 
-# Todo dont use open as action verb (finish)
+
 def get_ptt_post_by_link(db, link):
     post = db.get(PttPostsTable,link)
     return post
@@ -88,7 +88,7 @@ def get_filtered_posts(db, limit: int, offset: int, post_date: datetime = None, 
 
     return posts
 
-# Todo do_db_refresh or refresh_db (finish)
+
 def refresh_db(db, post):
     try:
         db.commit()
@@ -128,7 +128,6 @@ def update_post_data(db, post_id: int, **post_update):
 
     return post
 
-# Todo find a better name for data_in func (finish)
 def input_post(db, **ptt_post):
     post = get_ptt_post_by_link(db, ptt_post['link'])
     board = board_crud.get_and_create_board(db,ptt_post['board_name'], create_if_not_exists=True)
