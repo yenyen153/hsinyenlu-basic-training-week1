@@ -5,13 +5,13 @@ from sqlalchemy.orm import sessionmaker
 from tools.crawler_tool import *
 from sqlalchemy import create_engine
 from app.schemas import *
-from crud.post import data_in
+from crud.post import input_post
 from crud.crawler_log import log_in
-
+from settings import settings
 
 
 app = Celery("task",
-             broker="redis://localhost:6379/0",
+             broker=settings.CELERY_BROKER_URL,
              broker_connection_retry_on_startup=True)
 
 app.conf.beat_schedule = {
@@ -31,7 +31,7 @@ logging.basicConfig(
     encoding='utf-8'
 )
 
-engine = create_engine("mysql+pymysql://user:password@localhost/ptt_db")
+engine = create_engine(settings.DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
 @app.task
@@ -49,14 +49,13 @@ def run_crawler():
                 post['date'] = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
 
                 CreatePosts(**post)
-                data_in(db,**post)
+                input_post(db, **post)
                 db.commit()
             except Exception as e:
                 db.rollback()
                 my_logger.error(f"插入失敗: {str(e)}")
-
-            fianlly:
-            db.close()
+            finally:
+                db.close()
 
 
     log_in(Session,'crawler.log')
