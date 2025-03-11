@@ -6,30 +6,30 @@ import crud.board as board_crud
 from app.schemas import *
 from app.models import *
 
+# Todo dont use open as action verb (finish)
+def get_ptt_post_by_link(db, link):
+    post = db.get(PttPostsTable,link)
+    return post
 
-
-def open_ptt_post_by_link(db, link):
-    return db.query(PttPostsTable).filter_by(link=link).first()
-
-def open_ptt_post_by_id(db,post_id):
+def get_ptt_post_by_id(db, post_id):
     post = db.get(PttPostsTable,post_id)
 
     return post
 
 def get_post_by_id(db, post_id):
-    post = open_ptt_post_by_id(db, post_id)
+    post = get_ptt_post_by_id(db, post_id)
     try:
         post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
     except TypeError:
         post.date = post.date
-    except ValueError as v:
-        print(v)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="格式有誤")
 
     return post
 
 
 def delete_post_by_id(db, post_id):
-    post = open_ptt_post_by_id(db, post_id)
+    post = get_ptt_post_by_id(db, post_id)
     db.delete(post)
     db.commit()
 
@@ -38,7 +38,7 @@ def common_filters(db, query, post_date: datetime = None, board_name: str = None
     filters = []
 
     if board_name:
-        board = board_crud.get_board_by_board_name(db, board_name)
+        board = board_crud.get_and_create_board(db, board_name)
         if board:
             filters.append(PttPostsTable.board_id == board.id)
         else:
@@ -83,25 +83,32 @@ def get_filtered_posts(db, limit: int, offset: int, post_date: datetime = None, 
     for post in posts:
         try:
             post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
-        except:
+        except TypeError:
             post.date = post.date
 
     return posts
 
+# Todo do_db_refresh or refresh_db (finish)
+def refresh_db(db, post):
+    try:
+        db.commit()
+        db.refresh(post)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="貼文已經存在")
 
-def update_post_data(db, post_id, **post_update):
-    post = open_ptt_post_by_id(db, post_id)
+    post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
+
+    return post
+
+
+def update_post_data(db, post_id: int, **post_update):
+    post = get_ptt_post_by_id(db, post_id)
     if post is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有這篇貼文")
 
-    board = board_crud.get_board_by_board_name(db, post_update['board_name'])
-    if not board:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有這個版")
-
-    author = author_crud.get_author_by_ptt_id(db, post_update['author_ptt_id'])
-    if not author:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有這個作者")
-
+    board = board_crud.get_and_create_board(db,post_update['board_name'])
+    author = author_crud.get_and_create_author(db, post_update['author_ptt_id'],post_update['author_nickname'])
 
     if isinstance(post_update["date"], str):
         try:
@@ -117,22 +124,15 @@ def update_post_data(db, post_id, **post_update):
     post.board_id = board.id
     post.author_id = author.id
 
-    try:
-        db.commit()
-        db.refresh(post)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="這篇文章已經存在了")
-
-    post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
+    post = refresh_db(db, post)
 
     return post
 
-
-def data_in(db, **ptt_post):
-    post = open_ptt_post_by_link(db, ptt_post['link'])
-    board = board_crud.check_board(db,**ptt_post)
-    author = author_crud.check_author(db,**ptt_post)
+# Todo find a better name for data_in func (finish)
+def input_post(db, **ptt_post):
+    post = get_ptt_post_by_link(db, ptt_post['link'])
+    board = board_crud.get_and_create_board(db,ptt_post['board_name'], create_if_not_exists=True)
+    author = author_crud.get_and_create_author(db,ptt_post['author_ptt_id'],ptt_post['author_nickname'],create_if_not_exists=True)
 
     if post:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='貼文已經存在')
@@ -148,13 +148,6 @@ def data_in(db, **ptt_post):
 
     db.add(new_ptt_post)
 
-    try:
-        db.commit()
-        db.refresh(new_ptt_post)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="貼文已經存在")
-
-    new_ptt_post.date = datetime.strptime(new_ptt_post.date, "%Y/%m/%d %H:%M:%S")
+    new_ptt_post = refresh_db(db, new_ptt_post)
 
     return new_ptt_post
