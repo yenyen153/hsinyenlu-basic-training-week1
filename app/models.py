@@ -21,7 +21,7 @@ class BoardTable(Base):
     __tablename__ = "board"
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
-    board = sa.Column(sa.String(60), unique=True, nullable=False)
+    board = sa.Column(sa.String(30), unique=True, nullable=False)
     url = sa.Column(sa.String(2048), nullable=False)
 
     posts = relationship("PttPostsTable", back_populates="board", foreign_keys=[PttPostsTable.board_id])
@@ -30,8 +30,8 @@ class AuthorTable(Base):
     __tablename__ = "author"
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
-    author_ptt_id = sa.Column(sa.String(100), unique=True, nullable=False)
-    author_nickname = sa.Column(sa.String(100), nullable=True)
+    author_ptt_id = sa.Column(sa.String(20), unique=True, nullable=False)
+    author_nickname = sa.Column(sa.String(20), nullable=True)
 
     posts = relationship("PttPostsTable", back_populates="author", foreign_keys=[PttPostsTable.author_id])
 
