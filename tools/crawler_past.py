@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from tools.crawler_tool import *
 from sqlalchemy import create_engine
 from app.schemas import *
-from crud.post import input_post
+from crud.post import create_ptt_post
 from settings import settings
 from fastapi import status
 
@@ -40,7 +40,7 @@ def fetch_board_posts(board_name):
                 post = fetch_author(post_url)
                 post_date = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
                 try:
-                    if 2024 <= post_date.year <= 2025:
+                    if 2024 <= post_date.year <= 2025: # todo 過去一年 不要多爬 timedelta去處理
                         post['board_name'] = board_name
                         yield post
 
@@ -76,8 +76,8 @@ def run_crawler():
             db = Session()
             try:
                 post['date'] = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
-                CreatePosts(**post)
-                input_post(db, **post)
+                new_post = CreatePosts(**post)
+                create_ptt_post(db, **dict(new_post))
                 logger.info(f"成功儲存文章: {post['title']}")
 
             except Exception as e:
