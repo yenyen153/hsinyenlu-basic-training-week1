@@ -1,11 +1,35 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
+import yaml
+from typing import Optional
+from pydantic_settings import BaseSettings
+
+
+def load_yaml_settings(yaml_path: str) -> dict:
+    if not os.path.exists(yaml_path):
+        return {}
+    with open(yaml_path, "r", encoding="utf-8") as file:
+        yaml_data = yaml.safe_load(file)
+
+    return yaml_data.get("services", {}).get("fastapi", {}).get("environment", {})
 
 
 class Settings(BaseSettings):
-    DATABASE_URL:str
-    CELERY_BROKER_URL: str
-    CELERY_RESULT_BACKEND: str
+    DATABASE_URL: Optional[str] = None
+    CELERY_BROKER_URL: Optional[str] = None
+    CELERY_RESULT_BACKEND: Optional[str] = None
 
-    model_config = SettingsConfigDict(env_file=".env")
+    class Config:
+        env_file = ".env"
+        case_sensitive = True
+
 
 settings = Settings()
+
+yaml_settings = load_yaml_settings("docker-compose.yml")
+for key, value in yaml_settings.items():
+    if not getattr(settings, key):
+        setattr(settings, key, value)
+
+# print(settings.DATABASE_URL)
+# print(settings.CELERY_BROKER_URL)
+# print(settings.CELERY_RESULT_BACKEND)
