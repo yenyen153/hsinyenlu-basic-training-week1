@@ -1,17 +1,11 @@
-def log_in(Session,Crawlerlog):
-    with Session() as session:
-        with open(Crawlerlog, "r", encoding='utf-8') as log_file:
-            logs = log_file.readlines()
-            try:
-                for log in logs:
-                    match = re.match(r"([\d-]+ [\d:,]+) (.+)", log)
+from sqlalchemy.orm import Session
+from datetime import datetime
+from app.models import CrawlerLog
 
-                    if match:
-                        time = match.group(1)
-                        message = match.group(2)
-                        time_log = {'time':time, 'message':message}
-                        session.add(CrawlerLog(**time_log))
-            except Exception as e:
-                pass
-
-        session.commit()
+def log_to_db(db: Session, message: str):
+    log_entry = CrawlerLog(
+        time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        message=message
+    )
+    db.add(log_entry)
+    db.commit()
