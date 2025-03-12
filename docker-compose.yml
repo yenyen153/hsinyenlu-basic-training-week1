@@ -33,7 +33,7 @@ services:
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
     ports:
       - "8000:8000"
-    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["uvicorn", "main:app"]
 
   celery_worker:
     build: .
@@ -72,8 +72,6 @@ services:
       DATABASE_URL: "mysql+pymysql://user:password@db/ptt_db"
       PYTHONPATH: "/new_project2"
     working_dir: /new_project2
-    command: [ "python", "tools/crawler_past.py" ]
-
 
 volumes:
   mariadb_data:
