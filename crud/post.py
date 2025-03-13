@@ -83,7 +83,7 @@ def get_filtered_posts(db, limit: int, offset: int, start_date: datetime = None,
     for post in posts:
         try:
             post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
-        except TypeError:
+        except:
             post.date = post.date
 
     return posts
@@ -114,7 +114,7 @@ def update_post_data(db, post_id: int, **post_update):
     if isinstance(post_update["date"], str):
         try:
             post_update["date"] = datetime.strptime(post_update["date"], "%Y-%m-%dT%H:%M:%S")
-        except ValueError:
+        except:
             return {"error":"日期格式錯誤"}
 
     if isinstance(board, dict) and "error" in board:
