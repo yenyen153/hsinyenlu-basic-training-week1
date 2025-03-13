@@ -39,7 +39,7 @@ async def delete_post(post_id: int, db: Session = Depends(get_db)):
     except:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="找不到這篇文章")
 
-    return "文章刪除成功"
+    return {"detail":"文章刪除成功"}
 
 
 @app.get("/posts", response_model=list[PostResponse])
