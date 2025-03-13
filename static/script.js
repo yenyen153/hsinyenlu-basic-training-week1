@@ -146,7 +146,7 @@ async function deletePostById(event) {//用id刪除文章
         let response = await fetch(url, { method: "DELETE" });
         let data = await response.json();
 
-        document.getElementById("delete-post-result").textContent = JSON.stringify(data, null, 2);
+        document.getElementById("delete-post-result").textContent = JSON.stringify(data.detail, null, 2);
     } catch (error) {
         console.error("API 請求錯誤:", error);
         document.getElementById("delete-post-result").textContent = JSON.stringify(data.detail, null, 2);
