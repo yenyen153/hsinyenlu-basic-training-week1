@@ -14,7 +14,6 @@ def get_and_create_board(db, board_name,create_if_not_exists=False):
 
         else:
             return {'error': "沒有這個版面"}
-            # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有這個版")
 
     return board
 
