@@ -23,12 +23,13 @@ async def home(request: Request):
 
 @app.get("/posts/{post_id}", response_model=PostResponse)
 async def get_post(post_id: int, db: Session = Depends(get_db)):
-    try:
-        post = get_post_by_id(db, post_id)
 
-    except:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="找不到這則文章！")
-    return post
+    result = get_post_by_id(db, post_id)
+
+    if isinstance(result, dict) and "error" in result:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="找不到這則文章！")
+
+    return result
 
 
 @app.delete("/delete/{post_id}")
@@ -36,7 +37,7 @@ async def delete_post(post_id: int, db: Session = Depends(get_db)):
     try:
         delete_post_by_id(db, post_id)
     except:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="找不到這篇文章")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="找不到這篇文章")
 
     return "文章刪除成功"
 
@@ -47,34 +48,48 @@ async def get_posts(
         limit: int = Query(50, ge=1, le=100, description="每次查詢的最多文章數"),
         offset: int = Query(0, ge=0, description="要跳過的文章數"),
         board_name: str = Query(None, description="版面"),
-        author_ptt_id: str = Query(None, description="作者 PTT ID"),
-        post_date: datetime = Query(None, description="發文日期 (YYYY-MM-DD 格式)"),
+        author_ptt_id: str = Query(None, description="作者PTT ID"),
+        start_date: datetime = Query(None, description="開始日期 (YYYY-MM-DD)"),
+        end_date: datetime = Query(None, description="結束日期 (YYYY-MM-DD)"),
 ):
-    posts = get_filtered_posts(db, limit, offset, post_date, board_name, author_ptt_id)
+    result = get_filtered_posts(db, limit, offset, start_date, end_date, board_name, author_ptt_id)
 
-    return posts
+    if isinstance(result, dict) and "error" in result:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result['error'])
+
+    return result
 
 
 @app.get("/statistics")
 async def get_statistics(
-        post_date: datetime = Query(None, description="發文日期 (YYYY-MM-DD)"),
-        board_name: str = Query(None, description="版面名稱"),
-        author_ptt_id: str = Query(None, description="作者 PTT ID"),
+        start_date: datetime = Query(None, description="開始日期 (YYYY-MM-DD)"),
+        end_date: datetime = Query(None, description="結束日期 (YYYY-MM-DD)"),
+        board_name: str = Query(None, description="版面"),
+        author_ptt_id: str = Query(None, description="作者PTT ID"),
         db: Session = Depends(get_db)
 ):
-    posts_total = get_statistics_data(db, post_date, board_name, author_ptt_id)
+    result = get_statistics_data(db, start_date, end_date, board_name, author_ptt_id)
+    if isinstance(result, dict) and "error" in result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=result['error'])
 
-    return {"文章總篇數": posts_total}
+    return {"post_total": result}
 
 
 @app.post("/api/posts", response_model=PostResponse)
 async def create_post(post: CreatePosts, db: Session = Depends(get_db)):
-    new_post = create_ptt_post(db, **dict(post))
 
-    return new_post
+    result = create_ptt_post(db, **dict(post))
+    if isinstance(result, dict) and "error" in result:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result['error'])
+
+    return result
+
 
 @app.put("/api/posts/{post_id}", response_model=PostResponse)
 async def update_post(post_id: int, post_update: CreatePosts, db: Session = Depends(get_db)):
-    updated_post = update_post_data(db, post_id, **dict(post_update))
+    result = update_post_data(db, post_id, **dict(post_update))
 
-    return updated_post
+    if isinstance(result, dict) and "error" in result:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result["error"])
+
+    return result
