@@ -1,9 +1,8 @@
-async function fetchStatistics(event) { //用條件統計文章數量
+async function fetchStatistics(event) { //取特定條件下的文章數量
     event.preventDefault();
 
     const form = document.getElementById("get-statistics-form");
     const formData = new FormData(form);
-
     let params = new URLSearchParams();
 
     for (let [key, value] of formData.entries()) {
@@ -25,7 +24,7 @@ async function fetchStatistics(event) { //用條件統計文章數量
         let data = await response.json();
 
         if (response.ok) {
-            document.getElementById("statistics-result").textContent = `總文章數: ${data.文章總篇數}`;
+            document.getElementById("statistics-result").textContent = `總文章數: ${data.post_total}`;
         } else {
             document.getElementById("statistics-result").textContent = `錯誤: ${data.detail}`;
         }
@@ -35,12 +34,11 @@ async function fetchStatistics(event) { //用條件統計文章數量
     }
 }
 
-async function fetchPosts(event) { ///用條件取完整文章
+async function fetchPosts(event) { //取特定條件下的文章
     event.preventDefault();
 
     const form = document.getElementById("get-posts-form");
     const formData = new FormData(form);
-
     let params = new URLSearchParams();
 
     formData.forEach((value, key) => {
@@ -71,6 +69,7 @@ async function fetchPosts(event) { ///用條件取完整文章
         document.getElementById("posts-table-body").innerHTML = `<tr><td colspan="5">請求失敗，請檢查 API 或網路連線！</td></tr>`;
     }
 }
+
 
 function updatePostsTable(posts) { //呈上的function 要展示出的樣子
     let tableBody = document.getElementById("posts-table-body");
@@ -150,7 +149,7 @@ async function deletePostById(event) {//用id刪除文章
         document.getElementById("delete-post-result").textContent = JSON.stringify(data, null, 2);
     } catch (error) {
         console.error("API 請求錯誤:", error);
-        document.getElementById("delete-post-result").textContent = "刪除失敗";
+        document.getElementById("delete-post-result").textContent = JSON.stringify(data.detail, null, 2);
     }
 }
 
@@ -192,7 +191,7 @@ async function createPost(event) { //新增文章
                     errorMessage += `- ${err.msg} (${err.loc.join(" → ")})\n`;
                 });
             } else {
-                errorMessage += `${data.detail || "未知錯誤"}`; // 避免 undefined
+                errorMessage += `${data.detail || "未知錯誤"}`;
             }
             resultElement.textContent = errorMessage;
         }
