@@ -5,11 +5,7 @@ import crud.author as author_crud
 import crud.board as board_crud
 from app.schemas import *
 from app.models import *
-
-
-# def get_ptt_post_by_link(db, link):
-#     post = db.get(PttPostsTable,link)
-#     return post
+from datetime import timedelta
 
 
 def get_post_by_id(db, post_id):
@@ -19,9 +15,8 @@ def get_post_by_id(db, post_id):
         post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
     except TypeError:
         post.date = post.date
-    except ValueError:
-        return "格式錯誤"
-        # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="格式有誤")
+    except:
+        return {'error': '日期格式有誤'}
 
     return post
 
@@ -32,32 +27,30 @@ def delete_post_by_id(db, post_id):
     db.commit()
 
 
-def common_filters(db, query, post_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
+def common_filters(db, query, start_date: datetime = None, end_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
     filters = []
 
     if board_name:
         board = board_crud.get_and_create_board(db, board_name)
-        if board:
+        try:
             filters.append(PttPostsTable.board_id == board.id)
-        else:
-            return "沒有這個版面"
-            # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有這個版面")
+        except:
+            return {'error': '沒有這版面'}
 
     if author_ptt_id:
         author = author_crud.get_author_by_ptt_id(db, author_ptt_id)
         if author:
             filters.append(PttPostsTable.author_id == author.id)
         else:
-            return "沒有這個作者"
-            # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有這個作者")
+            return {"error": "沒有這個作者"}
 
-    if post_date:
+    if start_date and end_date:
         try:
-            post_date_str = post_date.strftime("%Y/%m/%d")
-            filters.append(PttPostsTable.date.like(f"{post_date_str}%"))
+            start_date_str = start_date.strftime("%Y/%m/%d")
+            end_date_str = (end_date + timedelta(days=1)).strftime("%Y/%m/%d")
+            filters.append(PttPostsTable.date.between(start_date_str, end_date_str))
         except ValueError:
-            return "錯誤的日期格式!!!請使用 YYYY-MM-DD"
-            # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="錯誤的日期格式，請使用 YYYY-MM-DD")
+            return {'error': "錯誤的日期格式!!!請使用YYYY-MM-DD"}
 
     if filters:
         query = query.filter(and_(*filters))
@@ -65,21 +58,27 @@ def common_filters(db, query, post_date: datetime = None, board_name: str = None
     return query
 
 
-def get_statistics_data(db, post_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
+def get_statistics_data(db, start_date: datetime = None, end_date: datetime = None, board_name: str = None,
+                        author_ptt_id: str = None):
     query = db.query(func.count(PttPostsTable.id))
-    query = common_filters(db, query, post_date, board_name, author_ptt_id)
-    posts_total = query.scalar()
+    query = common_filters(db, query, start_date, end_date, board_name, author_ptt_id)
+
+    try:
+        posts_total = query.scalar()
+    except:
+        return query
 
     return posts_total
 
 
-def get_filtered_posts(db, limit: int, offset: int, post_date: datetime = None, board_name: str = None,
-                       author_ptt_id: str = None):
+def get_filtered_posts(db, limit: int, offset: int, start_date: datetime = None, end_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
     query = db.query(PttPostsTable)
-    query = common_filters(db, query, post_date, board_name, author_ptt_id)
-
-    query = query.order_by(PttPostsTable.date.desc())
-    posts = query.offset(offset).limit(limit).all()
+    query = common_filters(db, query, start_date, end_date, board_name, author_ptt_id)
+    try:
+        query = query.order_by(PttPostsTable.date.desc())
+        posts = query.offset(offset).limit(limit).all()
+    except:
+        return query
 
     for post in posts:
         try:
@@ -96,8 +95,7 @@ def refresh_db(db, post):
         db.refresh(post)
     except IntegrityError:
         db.rollback()
-        return "貼文已經存在"
-        # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="貼文已經存在")
+        return {'error':'貼文已存在'}
 
     post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
 
@@ -107,8 +105,8 @@ def refresh_db(db, post):
 def update_post_data(db, post_id: int, **post_update):
     post = db.get(PttPostsTable, post_id)
     if post is None:
-        return "沒有這篇貼文"
-        # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有這篇貼文")
+
+        return {'error':'貼文不存在'}
 
     board = board_crud.get_and_create_board(db,post_update['board_name'])
     author = author_crud.get_author(db, post_update['author_ptt_id'], post_update['author_nickname'])
@@ -117,9 +115,12 @@ def update_post_data(db, post_id: int, **post_update):
         try:
             post_update["date"] = datetime.strptime(post_update["date"], "%Y-%m-%dT%H:%M:%S")
         except ValueError:
-            return "日期格式錯誤"
-            # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-            #                     detail="日期格式錯誤")
+            return {"error":"日期格式錯誤"}
+
+    if isinstance(board, dict) and "error" in board:
+        return board
+    if isinstance(author, dict) and "error" in author:
+        return author
 
     post.title = post_update["title"]
     post.link = str(post_update["link"])
@@ -134,13 +135,11 @@ def update_post_data(db, post_id: int, **post_update):
 
 def create_ptt_post(db, **ptt_post):
     post = db.get(PttPostsTable, ptt_post['link'])
-    # post = get_ptt_post_by_link(db, ptt_post['link'])
     board = board_crud.get_and_create_board(db,ptt_post['board_name'], create_if_not_exists=True)
     author = author_crud.get_author(db, ptt_post['author_ptt_id'], ptt_post['author_nickname'], create_if_not_exists=True)
 
     if post:
-        return "貼文已經存在"
-        # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='貼文已經存在')
+        return {'error':'貼文已存在'}
 
     new_ptt_post = PttPostsTable(
         board_id=board.id,
