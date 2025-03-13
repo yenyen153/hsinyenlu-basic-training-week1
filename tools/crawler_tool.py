@@ -39,6 +39,43 @@ def fetch_content(link):
     return content[0]
 
 ## 爬取作者名字與id/版面/標題
+# def fetch_author(link):
+#     res = requests.get(link)
+#     soup = BeautifulSoup(res.text, "html.parser")
+#
+#     if soup.select(".article-meta-value"):
+#         post_details = soup.select(".article-meta-value")
+#         details_list = []
+#
+#         for author in post_details:
+#             details_list.append(author.text)
+#
+#         posts_detail = {
+#             'title': details_list[2] if len(details_list) > 2 else "Untitled",
+#             'author_ptt_id': ((details_list[0].split('('))[0]).rstrip() if len(details_list) > 0 else "Unknown",
+#             'author_nickname': ((details_list[0].split('('))[1]).rstrip(')') if '(' in details_list[
+#                 0] else "No nickname",
+#             'link': link
+#         }
+#
+#         # 確保時間格式正確
+#         try:
+#             time_str = details_list[-1]
+#             dt = datetime.strptime(time_str, "%a %b %d %H:%M:%S %Y")
+#             formatted_time = dt.strftime("%Y/%m/%d %H:%M:%S")
+#             posts_detail['date'] = formatted_time
+#         except (ValueError, IndexError):
+#             posts_detail['date'] = None  # 避免格式錯誤導致崩潰
+#
+#         # 爬取文章內容
+#         posts_detail['content'] = fetch_content(link) if fetch_content(link) else "No content"
+#
+#     else:
+#         return None  # 確保返回 None 而不是字串
+#
+#     return posts_detail
+#
+#
 def fetch_author(link):
     res = requests.get(link)
     soup = BeautifulSoup(res.text, "html.parser")

@@ -11,14 +11,11 @@ from fastapi import status
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-engine = create_engine(settings.DATABASE_URL)
+engine = create_engine("mysql+pymysql://user:password@localhost/ptt_db")
 Session = sessionmaker(bind=engine)
 
-one_year_ago = datetime.now() - timedelta(days=366)
-one_year_ago_str = one_year_ago.strftime("%Y/%m/%d")
-
 def fetch_board_posts(board_name):
-
+    one_year_ago = datetime.now() - timedelta(days=365)
     url = f"https://www.ptt.cc/bbs/{board_name}/index.html"
     while url:
         try:
@@ -40,11 +37,11 @@ def fetch_board_posts(board_name):
                 post = fetch_author(post_url)
                 post_date = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
                 try:
-                    if 2024 <= post_date.year <= 2025: # todo 過去一年 不要多爬 timedelta去處理
+                    if post_date >= one_year_ago: # todo 過去一年 不要多爬 timedelta去處理
                         post['board_name'] = board_name
                         yield post
 
-                    elif post_date.year < 2024:
+                    else:
                         logger.info(f"遇到其他年份 結束爬取 {board_name} 版")
                         return
 
