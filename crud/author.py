@@ -1,5 +1,4 @@
 from app.models import *
-from fastapi import HTTPException, status
 
 def get_author_by_ptt_id(db, author_ptt_id):
     author = db.query(AuthorTable).filter_by(author_ptt_id=author_ptt_id).first()
@@ -18,7 +17,6 @@ def get_author(db, author_ptt_id, author_nickname, create_if_not_exists=False):
             db.commit()
             db.refresh(author)
         else:
-            return "沒有這個作者"
-            # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="沒有作者")
+            return {'error':'沒有這個作者'}
 
     return author
