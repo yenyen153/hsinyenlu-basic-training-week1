@@ -1,0 +1,67 @@
+services:
+  db:
+    image: mariadb:latest
+    container_name: ptt_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ptt_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  fastapi:
+    build: .
+    container_name: fastapi
+    restart: always
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_URL: "mysql+pymysql://user:password@db/ptt_db"
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+    ports:
+      - "8000:8000"
+    command: ["uvicorn", "main:app"]
+
+  celery_worker:
+    build: .
+    container_name: celery_worker
+    restart: always
+    depends_on:
+      - redis
+      - db
+      - fastapi
+    environment:
+      DATABASE_URL: "mysql+pymysql://user:password@db/ptt_db"
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+    command: ["celery", "-A", "tools.celery_tasks", "worker", "--loglevel=info"]
+
+  celery_beat:
+    build: .
+    container_name: celery_beat
+    restart: always
+    depends_on:
+      - celery_worker
+      - redis
+    environment:
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+    command: ["celery", "-A", "tools.celery_tasks", "beat", "--loglevel=info"]
+
+
+volumes:
+  mariadb_data:
+
