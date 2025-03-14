@@ -8,18 +8,6 @@ from app.models import *
 from datetime import timedelta
 
 
-def get_post_by_id(db, post_id):
-    post = db.get(PttPostsTable, post_id)
-    if post:
-
-        try:
-            post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
-        except:
-            post.date = post.date
-    else:
-        return {'error':'沒有這則文章'}
-
-    return post
 
 def get_post_by_link(db, link):
     post = db.get(PttPostsTable,link)
@@ -27,12 +15,21 @@ def get_post_by_link(db, link):
     return post
 
 
-def delete_post_by_id(db, post_id):
-
+def get_post_by_id(db, post_id:int, delete_or_not=False):
     post = db.get(PttPostsTable, post_id)
-    db.delete(post)
-    db.commit()
+    if post:
+        if delete_or_not:
+            db.delete(post)
+            db.commit()
 
+        else:
+            try:
+                post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
+            except:
+                post.date = post.date
+            return post
+    else:
+        return {'error':"沒有這篇貼文"}
 
 
 def common_filters(db, query, start_date: datetime = None, end_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
@@ -46,11 +43,11 @@ def common_filters(db, query, start_date: datetime = None, end_date: datetime = 
             return {'error': '沒有這版面'}
 
     if author_ptt_id:
-        author = author_crud.get_author_by_ptt_id(db, author_ptt_id)
-        if author:
-            filters.append(PttPostsTable.author_id == author.id)
+        author = author_crud.get_author(db, author_ptt_id) # todo
+        if isinstance(author,dict) and "error" in author:
+            return author
         else:
-            return {"error": "沒有這個作者"}
+            filters.append(PttPostsTable.author_id == author.id)
 
     if start_date and end_date:
         try:
