@@ -35,10 +35,9 @@ async def get_post(post_id: int, db: Session = Depends(get_db)):
 
 @app.delete("/delete/{post_id}")
 async def delete_post(post_id: int, db: Session = Depends(get_db)):
-    try:
-        delete_post_by_id(db, post_id)
-    except:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="找不到這篇文章")
+    result = get_post_by_id(db, post_id,delete_or_not=True)
+    if isinstance(result,dict) and "error" in result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=result['error'])
 
     return "文章刪除成功"
 
