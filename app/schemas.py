@@ -4,8 +4,7 @@ from datetime import datetime
 class CreatePosts(BaseModel):
     board_name: str
     title: str
-    # link: HttpUrl
-    link: str
+    link: HttpUrl
     author_ptt_id: str
     date: datetime
     author_nickname: str
@@ -18,8 +17,7 @@ class CreatePosts(BaseModel):
 class PostResponse(BaseModel):
     id: int
     title: str
-    # link: HttpUrl
-    link: str
+    link: HttpUrl
     date: datetime
     board_id: int
     author_id: int
