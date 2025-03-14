@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTT 文章管理系統</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
+</head>
+<body>
+    <h1>PTT 文章管理系統</h1>
+
+    <h2>統計文章數</h2>
+    <form id="get-statistics-form">
+        <label>版面名稱: <input type="text" id="stat_board_name" name="board_name"></label>
+        <label>作者PTT ID: <input type="text" id="stat_author_ptt_id" name="author_ptt_id"></label>
+        <label>開始日期: <input type="date" id="stat_start_date" name="start_date"></label>
+        <label>結束日期: <input type="date" id="stat_end_date" name="end_date"></label>
+        <button type="submit">查詢統計</button>
+    </form>
+    <pre id="statistics-result"></pre>
+
+    <h2>查詢文章</h2>
+    <form id="get-posts-form">
+        <label>版面名稱: <input type="text" id="post_board_name" name="board_name"></label>
+        <label>作者PTT ID: <input type="text" id="post_author_ptt_id" name="author_ptt_id"></label>
+        <label>開始日期: <input type="date" id="post_start_date" name="start_date"></label>
+        <label>結束日期: <input type="date" id="post_end_date" name="end_date"></label>
+        <label>查詢數量: <input type="number" id="post_limit" name="limit" value="50" min="1" max="100"></label>
+        <label>跳過數量: <input type="number" id="post_offset" name="offset" value="0" min="0"></label>
+        <button type="submit">查詢文章</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>標題</th>
+                <th>連結</th>
+                <th>發文日期</th>
+            </tr>
+        </thead>
+        <tbody id="posts-table-body"></tbody>
+    </table>
+
+
+    <h2>查詢單篇文章</h2>
+    <form id="get-post-form">
+        <label>文章 ID: <input type="number" id="post_id" required></label>
+        <button type="submit">查詢</button>
+    </form>
+    <div id="get-post-result"></div>
+
+
+    <h2>刪除文章</h2>
+    <form id="delete-post-form">
+        <label>文章 ID: <input type="number" id="delete_post_id" required></label>
+        <button type="submit">刪除</button>
+    </form>
+    <pre id="delete-post-result"></pre>
+
+    <h2>新增貼文</h2>
+    <form id="create-post-form">
+        <label>版面名稱: <input type="text" id="create_board_name" name="board_name" required></label>
+        <label>標題: <input type="text" id="create_title" name="title" required></label>
+        <label>連結: <input type="url" id="create_link" name="link" required></label>
+        <label>作者PTT ID: <input type="text" id="create_author_ptt_id" name="author_ptt_id" required></label>
+        <label>作者暱稱: <input type="text" id="create_author_nickname" name="author_nickname" required></label>
+        <label>發文日期: <input type="datetime-local" id="create_date" name="date" required></label>
+        <label>內容: <textarea id="create_content" name="content" required></textarea></label>
+        <button type="submit">新增</button>
+    </form>
+    <pre id="create-post-result"></pre>
+
+
+    <h2>修改貼文</h2>
+    <form id="update-post-form">
+        <label>文章 ID: <input type="number" id="update_post_id" name="post_id" required></label>
+        <label>版面名稱: <input type="text" id="update_board_name" name="board_name" required></label>
+        <label>標題: <input type="text" id="update_title" name="title" required></label>
+        <label>連結: <input type="url" id="update_link" name="link" required></label>
+        <label>作者 PTT ID: <input type="text" id="update_author_ptt_id" name="author_ptt_id" required></label>
+        <label>作者暱稱: <input type="text" id="update_author_nickname" name="author_nickname" required></label>
+        <label>發文日期: <input type="datetime-local" id="update_date" name="date" required></label>
+        <label>內容: <textarea id="update_content" name="content" required></textarea></label>
+        <button type="submit">修改</button>
+    </form>
+    <pre id="update-post-result"></pre>
+
+    <script src="{{ url_for('static', path='script.js') }}"></script>
+
+</body>
+</html>
