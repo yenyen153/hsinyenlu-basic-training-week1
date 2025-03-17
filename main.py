@@ -27,7 +27,7 @@ async def get_post(post_id: int, db: Session = Depends(get_db)):
     result = get_post_by_id(db, post_id)
 
     if isinstance(result, dict) and "error" in result:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result['error'])
+        raise HTTPException(status_code=result['status_code'], detail=result['error'])
 
     return result
 
@@ -37,7 +37,7 @@ async def get_post(post_id: int, db: Session = Depends(get_db)):
 async def delete_post(post_id: int, db: Session = Depends(get_db)):
     result = get_post_by_id(db, post_id,delete_or_not=True)
     if isinstance(result,dict) and "error" in result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=result['error'])
+        raise HTTPException(status_code=result['status_code'], detail=result['error'])
 
     return "文章刪除成功"
 
@@ -55,7 +55,7 @@ async def get_posts(
     result = get_filtered_posts(db, limit, offset, start_date, end_date, board_name, author_ptt_id)
 
     if isinstance(result, dict) and "error" in result:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result['error'])
+        raise HTTPException(status_code=result['status_code'], detail=result['error'])
 
     return result
 
@@ -70,7 +70,7 @@ async def get_statistics(
 ):
     result = get_statistics_data(db, start_date, end_date, board_name, author_ptt_id)
     if isinstance(result, dict) and "error" in result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=result['error'])
+        raise HTTPException(status_code=result['status_code'], detail=result['error'])
 
     return {"post_total": result}
 
@@ -90,6 +90,6 @@ async def update_post(post_id: int, post_update: CreatePosts, db: Session = Depe
     result = update_post_data(db, post_id, **dict(post_update))
 
     if isinstance(result, dict) and "error" in result:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result["error"])
+        raise HTTPException(status_code=result['status_code'], detail=result["error"])
 
     return result
