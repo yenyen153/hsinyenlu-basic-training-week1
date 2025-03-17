@@ -6,13 +6,7 @@ import crud.board as board_crud
 from app.schemas import *
 from app.models import *
 from datetime import timedelta
-
-
-
-def get_post_by_link(db, link):
-    post = db.get(PttPostsTable,link)
-
-    return post
+from starlette.status import HTTP_404_NOT_FOUND,HTTP_400_BAD_REQUEST
 
 
 def get_post_by_id(db, post_id:int, delete_or_not=False):
@@ -29,18 +23,18 @@ def get_post_by_id(db, post_id:int, delete_or_not=False):
                 post.date = post.date
             return post
     else:
-        return {'error':"沒有這篇貼文"}
+        return {'status_code':HTTP_404_NOT_FOUND,'error':"沒有這篇貼文"}
 
 
 def common_filters(db, query, start_date: datetime = None, end_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
     filters = []
 
     if board_name:
-        board = board_crud.get_and_create_board(db, board_name)
+        board = board_crud.get_board(db, board_name)
         try:
             filters.append(PttPostsTable.board_id == board.id)
         except:
-            return {'error': '沒有這版面'}
+            return {'status_code':HTTP_404_NOT_FOUND,'error': '沒有這版面'}
 
     if author_ptt_id:
         author = author_crud.get_author(db, author_ptt_id) # todo
@@ -55,7 +49,7 @@ def common_filters(db, query, start_date: datetime = None, end_date: datetime = 
             end_date_str = (end_date + timedelta(days=1)).strftime("%Y/%m/%d")
             filters.append(PttPostsTable.date.between(start_date_str, end_date_str))
         except ValueError:
-            return {'error': "錯誤的日期格式!!!請使用YYYY-MM-DD"}
+            return {'status_code':HTTP_400_BAD_REQUEST,'error': "錯誤的日期格式!!!請使用YYYY-MM-DD"}
 
     if filters:
         query = query.filter(and_(*filters))
@@ -101,7 +95,7 @@ def refresh_db(db, post):
         db.refresh(post)
     except IntegrityError:
         db.rollback()
-        return {'error':'貼文已存在'}
+        return {'status_code':HTTP_400_BAD_REQUEST,'error':'貼文已存在'}
 
     post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
 
@@ -114,14 +108,14 @@ def update_post_data(db, post_id: int, **post_update):
 
         return {'status_code':status.HTTP_404_NOT_FOUND,'error':'貼文不存在'}
 
-    board = board_crud.get_and_create_board(db,post_update['board_name'])
+    board = board_crud.get_board(db, post_update['board_name'])
     author = author_crud.get_author(db, post_update['author_ptt_id'], post_update['author_nickname'])
 
     if isinstance(post_update["date"], str):
         try:
             post_update["date"] = datetime.strptime(post_update["date"], "%Y-%m-%dT%H:%M:%S")
         except ValueError:
-            return {'status_code':status.HTTP_400_BAD_REQUEST,"error":"日期格式錯誤"}
+            return {'status_code':HTTP_400_BAD_REQUEST,"error":"日期格式錯誤"}
 
     if isinstance(board, dict) and "error" in board:
         return board
@@ -139,13 +133,14 @@ def update_post_data(db, post_id: int, **post_update):
 
     return post
 
+
 def create_ptt_post(db, **ptt_post):
     post = db.get(PttPostsTable, ptt_post['link'])
-    board = board_crud.get_and_create_board(db,ptt_post['board_name'], create_if_not_exists=True)
+    board = board_crud.get_board(db, ptt_post['board_name'], create_if_not_exists=True)
     author = author_crud.get_author(db, ptt_post['author_ptt_id'], ptt_post['author_nickname'], create_if_not_exists=True)
 
     if post:
-        return {'error':'貼文已存在'}
+        return {'status_code':HTTP_400_BAD_REQUEST,"error":"貼文已經存在"}
 
     new_ptt_post = PttPostsTable(
         board_id=board.id,
