@@ -9,6 +9,8 @@ from crud.post import create_ptt_post, get_post_by_link
 from crud.crawler_log import log_to_db
 from settings import settings
 from datetime import datetime
+from app.models import *
+
 
 app = Celery("tasks",
              broker=settings.CELERY_BROKER_URL,
@@ -54,8 +56,7 @@ def crawler_update():
                     post['date'] = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
                 except:
                     pass
-
-                existing_post = get_post_by_link(db, post['link'])
+                existing_post = db.get(PttPostsTable, post['link'])
                 if existing_post:
                     return
 
