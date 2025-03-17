@@ -1,3 +1,4 @@
+from starlette.status import HTTP_404_NOT_FOUND
 from app.models import *
 
 def get_author(db, author_ptt_id:str , author_nickname:str = None, create_if_not_exists=False):
@@ -12,6 +13,6 @@ def get_author(db, author_ptt_id:str , author_nickname:str = None, create_if_not
             db.commit()
             db.refresh(author)
         else:
-            return {'error':'沒有這個作者'}
+            return {'status_code':HTTP_404_NOT_FOUND,'error':'沒有這個作者'}
 
     return author
