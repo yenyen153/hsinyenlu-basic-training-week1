@@ -2,14 +2,12 @@ from celery import Celery
 from celery.schedules import crontab
 import logging
 from sqlalchemy.orm import sessionmaker
-from tools.crawler_tool import *
 from sqlalchemy import create_engine
 from app.schemas import *
 from crud.post import create_ptt_post
 from crud.crawler_log import log_to_db
 from settings import settings
 from datetime import datetime
-from app.models import *
 from tools.crawler_past import fetch_board_posts, run_crawler
 
 
