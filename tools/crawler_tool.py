@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 
-PTT_BOARDS = ["Gossiping", "Stock", "C_Chat", "Baseball", "NBA"]
 PTT_URL = "https://www.ptt.cc/bbs/{}/index.html"
 
 session = requests.Session()
