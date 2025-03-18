@@ -5,11 +5,12 @@ from sqlalchemy.orm import sessionmaker
 from tools.crawler_tool import *
 from sqlalchemy import create_engine
 from app.schemas import *
-from crud.post import create_ptt_post, get_post_by_link
+from crud.post import create_ptt_post
 from crud.crawler_log import log_to_db
 from settings import settings
 from datetime import datetime
 from app.models import *
+from tools.crawler_past import fetch_board_posts, run_crawler
 
 
 app = Celery("tasks",
@@ -22,7 +23,6 @@ app.conf.beat_schedule = {
         "schedule": crontab(minute=0, hour='*/1')
     }
 }
-# "schedule": crontab(minute='*/1')
 
 logging.basicConfig(
     filename="crawler.log",
@@ -34,41 +34,29 @@ logging.basicConfig(
 
 engine = create_engine(settings.DATABASE_URL)
 Session = sessionmaker(bind=engine)
-PTT_BOARDS = ['C_Chat', 'Lifeismoney', 'home-sale', 'NBA', 'mobilecomm','baseball']
-
 
 @app.task
 def crawler_update():
     db = Session()
-
-    for board in PTT_BOARDS:
+    ptt_boards = [ "stock","NBA", "Lifeismoney", "home-sale", "mobilecomm","Baseball","c_chat",]
+    for board in ptt_boards:
         log_message = f"正在爬取 {board}"
         logging.info(log_message)
         log_to_db(db, log_message)
+        try:
+            posts = fetch_board_posts(board)
+        except Exception as e:
+            logging.error(f"Error fetching posts from {board}: {str(e)}")
+            continue
 
-        links = fetch_link(board)
-        for link in links:
+        for post in posts:
+            db = Session()
             try:
-                post = fetch_post_detail(link)
-                post['board_name'] = board
+                post['date'] = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
+                CreatePosts(**post)
+                create_ptt_post(db, **post)
 
-                try:
-                    post['date'] = datetime.strptime(post['date'], "%Y/%m/%d %H:%M:%S")
-                except:
-                    pass
-                existing_post = db.get(PttPostsTable, post['link'])
-                if existing_post:
-                    return
 
-                new_post = CreatePosts(**post)
-                create_ptt_post(db, **dict(new_post))
-                db.commit()
-
-            except ValueError:
-                db.rollback()
-
-            except:
-                db.rollback()
-
-            finally:
-                db.close()
+            except Exception as e:
+                logging.error(f"{post['title']}: {str(e)}")
+                continue
