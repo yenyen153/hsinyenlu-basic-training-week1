@@ -15,7 +15,7 @@
 
 #### 爬蟲
 - 本次爬蟲目標：ptt
-- 爬蟲版面：Stock, NBA, Baseball, mobilecomm, c_chat, lifeismoney
+- 爬蟲版面：NBA, Baseball, mobilecomm, c_chat, lifeismoney, home-sale, stock
 - 爬蟲任務：以celery完成每一小時定時爬蟲，以更新文章／爬取過去一年內資料
 - 爬取內容：版面(board_name)、文章標題(title)、連結(link)、發文日期(date)、作者ptt id(author_ptt_id)、作者暱稱(author_nickname)、內文(content)
 
