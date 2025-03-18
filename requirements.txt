@@ -38,7 +38,8 @@ charset-normalizer~=3.4.1
 prompt_toolkit~=3.0.50
 PyMySQL~=1.1.1
 pytest-mock~=3.14.0
-fastapi
+fastapi~=0.115.11
 uvicorn
-pydantic-settings
-PyYAML
+pydantic-settings~=2.8.1
+PyYAML~=6.0.2
+starlette~=0.46.0
