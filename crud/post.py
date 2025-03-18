@@ -1,29 +1,28 @@
-from fastapi import HTTPException, status
 from sqlalchemy import func, and_
 from sqlalchemy.exc import IntegrityError
 import crud.author as author_crud
 import crud.board as board_crud
 from app.schemas import *
-from app.models import *
+from app.models import PttPostsTable
 from datetime import timedelta
 from starlette.status import HTTP_404_NOT_FOUND,HTTP_400_BAD_REQUEST
 
 
-def get_post_by_id(db, post_id:int, delete_or_not=False):
+def get_post_by_id(db, post_id:int):
     post = db.get(PttPostsTable, post_id)
-    if post:
-        if delete_or_not:
-            db.delete(post)
-            db.commit()
 
-        else:
-            try:
-                post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
-            except:
-                post.date = post.date
-            return post
-    else:
-        return {'status_code':HTTP_404_NOT_FOUND,'error':"沒有這篇貼文"}
+    try:
+        post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
+    except:
+        post.date = post.date
+
+    return post
+
+
+def delete_post_by_id(db, post_id:int):
+    post = db.get(PttPostsTable, post_id)
+    db.delete(post)
+    db.commit()
 
 
 def common_filters(db, query, start_date: datetime = None, end_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
@@ -37,7 +36,7 @@ def common_filters(db, query, start_date: datetime = None, end_date: datetime = 
             return {'status_code':HTTP_404_NOT_FOUND,'error': '沒有這版面'}
 
     if author_ptt_id:
-        author = author_crud.get_author(db, author_ptt_id) # todo
+        author = author_crud.get_author(db, author_ptt_id)
         if isinstance(author,dict) and "error" in author:
             return author
         else:
@@ -57,6 +56,24 @@ def common_filters(db, query, start_date: datetime = None, end_date: datetime = 
     return query
 
 
+def get_filtered_posts(db, limit: int, offset: int, start_date: datetime = None, end_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
+    query = db.query(PttPostsTable)
+    query = common_filters(db, query, start_date, end_date, board_name, author_ptt_id)
+    try:
+        query = query.order_by(PttPostsTable.date.desc())
+        posts = query.offset(offset).limit(limit).all()
+    except:
+        return query
+
+    for post in posts:
+        try:
+            post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
+        except:
+            post.date = post.date
+
+
+    return posts
+
 def get_statistics_data(db, start_date: datetime = None, end_date: datetime = None, board_name: str = None,
                         author_ptt_id: str = None):
     query = db.query(func.count(PttPostsTable.id))
@@ -68,25 +85,6 @@ def get_statistics_data(db, start_date: datetime = None, end_date: datetime = No
         return query
 
     return posts_total
-
-
-def get_filtered_posts(db, limit: int, offset: int, start_date: datetime = None, end_date: datetime = None, board_name: str = None, author_ptt_id: str = None):
-    query = db.query(PttPostsTable)
-    query = common_filters(db, query, start_date, end_date, board_name, author_ptt_id)
-    try:
-        query = query.order_by(PttPostsTable.date.desc())
-        posts = query.offset(offset).limit(limit).all()
-    except: # todo
-        return query
-
-    for post in posts:
-        try:
-            post.date = datetime.strptime(post.date, "%Y/%m/%d %H:%M:%S")
-        except:
-            post.date = post.date
-
-
-    return posts
 
 
 def refresh_db(db, post):
@@ -102,11 +100,35 @@ def refresh_db(db, post):
     return post
 
 
+
+def create_ptt_post(db, **ptt_post):
+    post = db.get(PttPostsTable, ptt_post['link'])
+    board = board_crud.get_board(db, ptt_post['board_name'], create_if_not_exists=True)
+    author = author_crud.get_author(db, ptt_post['author_ptt_id'], ptt_post['author_nickname'], create_if_not_exists=True)
+
+    if post:
+        return {'status_code':HTTP_400_BAD_REQUEST,"error":"貼文已經存在"}
+
+    new_ptt_post = PttPostsTable(
+        board_id=board.id,
+        title=ptt_post['title'],
+        link=str(ptt_post['link']),
+        author_id=author.id,
+        date=ptt_post['date'].strftime("%Y/%m/%d %H:%M:%S"),
+        content=ptt_post['content']
+    )
+
+    db.add(new_ptt_post)
+    new_ptt_post = refresh_db(db, new_ptt_post)
+
+    return new_ptt_post
+
+
 def update_post_data(db, post_id: int, **post_update):
     post = db.get(PttPostsTable, post_id)
     if post is None:
 
-        return {'status_code':status.HTTP_404_NOT_FOUND,'error':'貼文不存在'}
+        return {'status_code':HTTP_404_NOT_FOUND,'error':'貼文不存在'}
 
     board = board_crud.get_board(db, post_update['board_name'])
     author = author_crud.get_author(db, post_update['author_ptt_id'], post_update['author_nickname'])
@@ -134,24 +156,3 @@ def update_post_data(db, post_id: int, **post_update):
     return post
 
 
-def create_ptt_post(db, **ptt_post):
-    post = db.get(PttPostsTable, ptt_post['link'])
-    board = board_crud.get_board(db, ptt_post['board_name'], create_if_not_exists=True)
-    author = author_crud.get_author(db, ptt_post['author_ptt_id'], ptt_post['author_nickname'], create_if_not_exists=True)
-
-    if post:
-        return {'status_code':HTTP_400_BAD_REQUEST,"error":"貼文已經存在"}
-
-    new_ptt_post = PttPostsTable(
-        board_id=board.id,
-        title=ptt_post['title'],
-        link=str(ptt_post['link']),
-        author_id=author.id,
-        date=ptt_post['date'].strftime("%Y/%m/%d %H:%M:%S"),
-        content=ptt_post['content']
-    )
-
-    db.add(new_ptt_post)
-    new_ptt_post = refresh_db(db, new_ptt_post)
-
-    return new_ptt_post
