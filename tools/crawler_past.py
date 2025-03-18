@@ -11,7 +11,7 @@ from fastapi import status
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-engine = create_engine("mysql+pymysql://user:password@localhost/ptt_db")
+engine = create_engine(settings.DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
 def fetch_board_posts(board_name):
@@ -82,4 +82,3 @@ def run_crawler():
 
 if __name__ == "__main__":
     run_crawler()
-
