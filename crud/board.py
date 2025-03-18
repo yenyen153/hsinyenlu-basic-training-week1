@@ -1,6 +1,5 @@
 from starlette.status import HTTP_404_NOT_FOUND
-
-from app.models import *
+from app.models import BoardTable
 
 def get_board(db, board_name, create_if_not_exists=False):
     board = db.query(BoardTable).filter_by(board=board_name).first()
