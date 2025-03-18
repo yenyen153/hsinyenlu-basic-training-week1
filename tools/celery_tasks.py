@@ -36,11 +36,13 @@ Session = sessionmaker(bind=engine)
 @app.task
 def crawler_update():
     db = Session()
-    ptt_boards = [ "stock","NBA", "Lifeismoney", "home-sale", "mobilecomm","Baseball","c_chat",]
+    ptt_boards = ["NBA", "Lifeismoney", "home-sale", "mobilecomm","Baseball","c_chat",]
     for board in ptt_boards:
+        log_time = datetime.now()
+        logging.info(log_time)
         log_message = f"正在爬取 {board}"
         logging.info(log_message)
-        log_to_db(db, log_message)
+        log_to_db(db, log_time,log_message)
         try:
             posts = fetch_board_posts(board)
         except Exception as e:
@@ -58,3 +60,5 @@ def crawler_update():
             except Exception as e:
                 logging.error(f"{post['title']}: {str(e)}")
                 continue
+
+        logging.info("end")
