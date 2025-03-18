@@ -1,10 +1,11 @@
-from fastapi import FastAPI, Depends, Query, Request
+from fastapi import FastAPI, Depends, Query, Request,HTTPException
 from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from app.databases import get_db
 from crud.post import *
+
 
 app = FastAPI()
 
@@ -23,21 +24,21 @@ async def home(request: Request):
 
 @app.get("/posts/{post_id}", response_model=PostResponse)
 async def get_post(post_id: int, db: Session = Depends(get_db)):
+    try:
+        result = get_post_by_id(db, post_id)
 
-    result = get_post_by_id(db, post_id)
-
-    if isinstance(result, dict) and "error" in result:
-        raise HTTPException(status_code=result['status_code'], detail=result['error'])
+    except:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="沒有這則貼文")
 
     return result
 
 
-
 @app.delete("/delete/{post_id}")
 async def delete_post(post_id: int, db: Session = Depends(get_db)):
-    result = get_post_by_id(db, post_id,delete_or_not=True)
-    if isinstance(result,dict) and "error" in result:
-        raise HTTPException(status_code=result['status_code'], detail=result['error'])
+    try:
+        delete_post_by_id(db, post_id)
+    except:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="沒有這則貼文")
 
     return "文章刪除成功"
 
